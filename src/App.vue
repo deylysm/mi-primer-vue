@@ -8,10 +8,11 @@ const nombre = ref('')
 
 <template>
   <h1>Mi primer formulario en Vue</h1>
+  <h1>O.M.E.E.I.E.A.P.S.</h1>
 
   <input
     v-model="nombre"
-    placeholder="Escribe tu nombre"
+    placeholder="Escribe algo azul"
   />
 
   <p>Hola, {{ nombre }}</p>
