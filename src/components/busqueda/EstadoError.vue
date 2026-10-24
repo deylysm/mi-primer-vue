@@ -43,7 +43,7 @@ const emit = defineEmits(['reintentar'])
   color: var(--fa-fondo-error);
   background: var(--fa-color-error);
   border: 1px solid var(--fa-color-error);
-  border-radius: var(--fa-radio);
+  border-radius: var(--fa-radio-pildora); /* botón de píldora, como el resto de botones */
   cursor: pointer;
 }
 .error__boton:hover {

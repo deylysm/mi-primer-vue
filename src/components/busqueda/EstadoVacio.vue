@@ -32,11 +32,14 @@ const emit = defineEmits(['limpiar-filtros'])
   background: var(--fa-fondo-superficie);
   border: 1px solid var(--fa-borde);
   border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-tarjeta);
 }
 .vacio__titulo {
   margin: 0;
+  font-family: var(--fa-fuente-titulos);
   font-size: var(--fa-texto-lg);
   font-weight: 700;
+  color: var(--fa-color-primario-oscuro);
   overflow-wrap: anywhere;
 }
 .vacio__sugerencias {
@@ -53,11 +56,11 @@ const emit = defineEmits(['limpiar-filtros'])
   font-weight: 600;
   color: var(--fa-color-acento);
   background: var(--fa-fondo-superficie);
-  border: 1px solid var(--fa-color-acento);
-  border-radius: var(--fa-radio);
+  border: 2px solid var(--fa-color-acento);
+  border-radius: var(--fa-radio-pildora); /* botón de píldora de contorno verde */
   cursor: pointer;
 }
 .vacio__boton:hover {
-  background: var(--fa-fondo-pagina);
+  background: var(--fa-color-marca-suave);
 }
 </style>

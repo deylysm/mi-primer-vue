@@ -30,7 +30,8 @@ const textoCantidad = computed(() => {
 .resultados__cantidad {
   margin: 0 0 var(--fa-espacio-3);
   font-size: var(--fa-texto-sm);
-  color: var(--fa-color-texto-suave);
+  font-weight: 600;
+  color: var(--fa-color-texto-suave); /* 7:1 sobre el fondo de página */
 }
 /* Móvil: 1 columna. list-style:none quita viñetas (role="list" en el HTML conserva la semántica). */
 .resultados__lista {
@@ -44,14 +45,23 @@ const textoCantidad = computed(() => {
 .resultados__item {
   min-width: 0;
 }
+/* Rejilla mobile-first: 1 columna (móvil) -> 2 (>=640px) -> 3 (>=1024px, junto a los
+   filtros laterales) -> 4 (>=1360px, cuando ya hay sitio de sobra). */
 @media (min-width: 640px) {
   .resultados__lista {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fa-espacio-4);
   }
 }
 @media (min-width: 1024px) {
   .resultados__lista {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--fa-espacio-3);
+  }
+}
+@media (min-width: 1360px) {
+  .resultados__lista {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 </style>

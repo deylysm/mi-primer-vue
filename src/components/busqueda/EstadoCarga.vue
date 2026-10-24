@@ -16,8 +16,11 @@
   align-items: center;
   justify-content: center;
   gap: var(--fa-espacio-2);
-  padding: var(--fa-espacio-4) var(--fa-espacio-3);
+  padding: var(--fa-espacio-5) var(--fa-espacio-3);
   color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
 }
 /* Spinner: círculo con un borde de otro color que gira */
 .carga__spinner {
