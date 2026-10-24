@@ -1,0 +1,200 @@
+/* ==========================================================================
+   farmaapp.css - Base visual de FarmaApp
+   Lo importa src/views/BuscadorView.vue. Todo lo "de elemento" vive bajo la
+   clase .fa-app para no afectar al resto de la app (salvo la sección 5).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Variables (tokens de diseño)
+   Una variable CSS se declara con --nombre y se usa con var(--nombre).
+   Así cambiamos un color en UN solo lugar y se actualiza en toda la app.
+   Prefijo --fa- (FarmaApp) para no chocar con las variables de base.css.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Colores de marca */
+  --fa-color-primario: #0b6e4f;        /* verde farmacia; blanco encima = 6.25:1 */
+  --fa-color-primario-hover: #085640;  /* verde más oscuro al pasar el ratón */
+  --fa-color-acento: #0a5cad;          /* azul para enlaces y acciones secundarias */
+
+  /* Colores de estado: texto + fondo van siempre en pareja */
+  --fa-color-ok: #146c2e;
+  --fa-fondo-ok: #e3f4e8;
+  --fa-color-aviso: #8a4b00;
+  --fa-fondo-aviso: #fff1d6;
+  --fa-color-error: #b3261e;
+  --fa-fondo-error: #fde8e6;
+
+  /* Texto */
+  --fa-color-texto: #1f2933;
+  --fa-color-texto-suave: #52606d;
+
+  /* Superficies y bordes */
+  --fa-fondo-pagina: #f5f7f6;
+  --fa-fondo-superficie: #ffffff;      /* tarjetas */
+  --fa-borde: #d5dbe1;                 /* decorativo (separadores, tarjetas) */
+  --fa-borde-control: #6b7785;         /* inputs/botones: >= 3:1 (WCAG 1.4.11) */
+
+  /* Foco del teclado */
+  --fa-color-foco: #0a5cad;
+
+  /* Tipografía */
+  --fa-fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --fa-texto-base: 1rem;      /* 16px */
+  --fa-texto-sm: 0.875rem;    /* 14px */
+  --fa-texto-lg: 1.125rem;    /* 18px */
+  --fa-texto-xl: 1.5rem;      /* 24px */
+  --fa-texto-2xl: 2rem;       /* 32px */
+  --fa-interlineado: 1.5;
+
+  /* Espaciado (escala de 4/8/16/24/32 px) */
+  --fa-espacio-1: 4px;
+  --fa-espacio-2: 8px;
+  --fa-espacio-3: 16px;
+  --fa-espacio-4: 24px;
+  --fa-espacio-5: 32px;
+
+  /* Forma y profundidad */
+  --fa-radio: 8px;
+  --fa-sombra-tarjeta: 0 1px 3px rgba(31, 41, 51, 0.12),
+    0 1px 2px rgba(31, 41, 51, 0.08);
+
+  /* Área táctil mínima recomendada (WCAG 2.5.5 / móviles) */
+  --fa-tactil-min: 44px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Breakpoints (puntos de cambio de diseño adaptable)
+   Las variables CSS NO funcionan dentro de @media, así que se escriben a mano:
+     640px  -> móvil grande / tablet pequeña
+     768px  -> tablet
+     1024px -> escritorio
+   Enfoque mobile-first: los estilos base son para móvil y se amplían con
+   @media (min-width: 640px) { ... }, etc.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   3. Estilos base acotados a .fa-app
+   -------------------------------------------------------------------------- */
+.fa-app {
+  background: var(--fa-fondo-pagina);
+  color: var(--fa-color-texto);
+  font-family: var(--fa-fuente);
+  font-size: var(--fa-texto-base);
+  line-height: var(--fa-interlineado);
+  min-height: 100vh;
+  /* dvh = alto real visible en móviles (descuenta la barra del navegador).
+     Los navegadores que no lo entienden se quedan con la línea de arriba. */
+  min-height: 100dvh;
+}
+
+/* box-sizing: el padding y el borde cuentan dentro del ancho declarado,
+   lo que evita que las cajas se salgan de la pantalla (scroll horizontal). */
+.fa-app,
+.fa-app *,
+.fa-app *::before,
+.fa-app *::after {
+  box-sizing: border-box;
+}
+
+/* Foco visible para quien navega con teclado (Tab). :focus-visible solo se
+   activa con teclado, no al hacer clic con el ratón. 3px + offset = bien visible. */
+.fa-app :focus-visible {
+  outline: 3px solid var(--fa-color-foco);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   4. Utilidades globales
+   -------------------------------------------------------------------------- */
+
+/* Enlace "Saltar al contenido": invisible fuera de pantalla hasta que recibe
+   foco (primer Tab). Permite al teclado evitar repetir el menú en cada página. */
+.fa-saltar-contenido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-120%);
+  padding: var(--fa-espacio-2) var(--fa-espacio-3);
+  min-height: var(--fa-tactil-min);
+  display: inline-flex;
+  align-items: center;
+  background: var(--fa-color-primario);
+  color: #ffffff;
+  font-family: var(--fa-fuente);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--fa-radio) 0;
+  z-index: 1000;
+}
+
+.fa-saltar-contenido:focus,
+.fa-saltar-contenido:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--fa-color-foco);
+  outline-offset: 2px;
+}
+
+/* Patrón "sr-only": oculta el elemento a la vista pero lo deja disponible
+   para lectores de pantalla (no usar display:none, que también los oculta). */
+.fa-visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reserva siempre el hueco de la barra de scroll vertical: así el ancho de la página
+   no "salta" cuando el contenido pasa de corto a largo (o al revés). */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Respeta a quien pidió "reducir movimiento" en su sistema operativo:
+   anulamos animaciones y transiciones dentro de .fa-app. */
+@media (prefers-reduced-motion: reduce) {
+  .fa-app *,
+  .fa-app *::before,
+  .fa-app *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Neutralizar la plantilla de Vite (main.css) SOLO cuando FarmaApp está montada
+   main.css da a body "display:flex; place-items:center" y a #app un max-width,
+   padding de 2rem y, en >=1024px, una rejilla de 2 columnas. Eso rompería el
+   layout de FarmaApp. :has() ("que contiene a...") limita el arreglo a cuando
+   dentro hay un .fa-app. Funciona en navegadores modernos (Chrome/Edge 105+,
+   Safari 15.4+, Firefox 121+).
+   -------------------------------------------------------------------------- */
+body:has(.fa-app) {
+  display: block;
+  /* main.css pone "place-items: center" en el body. Los Chrome modernos lo
+     aplican también a bloques normales, y #app se encogía al ancho de su
+     contenido y quedaba centrado. Con "normal" vuelve a ocupar todo el ancho. */
+  place-items: normal;
+}
+
+#app:has(> .fa-app) {
+  display: block;
+  width: 100%; /* seguridad: #app siempre ocupa todo el ancho */
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* main.css pone un fondo verde translúcido a "a:hover" (especificidad 0,1,1);
+   con texto blanco el contraste fallaría. Esta regla (0,2,0) lo corrige. */
+.fa-saltar-contenido:hover {
+  background: var(--fa-color-primario-hover);
+}
