@@ -1,7 +1,10 @@
 <!--
   MenuLateral.vue  (src/components/layout/)
-  Qué es: el menú desplegable (cajón lateral) que se abre con el botón hamburguesa en pantallas
-  menores de 1024px. Contiene Inicio, Categorías, Carrito e "Identifícate" (próximamente).
+  Qué es: el menú desplegable (cajón lateral) que se abre con el botón hamburguesa naranja en
+  móvil y tablet (< 1024px; en escritorio se usa el mega-menú MenuEscritorio.vue). Contiene Inicio,
+  Categorías, Carrito e "Identifícate" (próximamente).
+  Cada categoría con subcategorías es un ACORDEÓN: al tocarla se despliega su sublista
+  ("Ver todo en ..." + subcategorías) y solo puede haber una abierta a la vez.
   Quién lo usa: CabeceraTienda.vue (le pasa `abierto` y escucha `cerrar`).
 
   Cómo funciona: usa el elemento HTML nativo <dialog>. Al llamar a showModal() el NAVEGADOR se encarga de:
@@ -9,23 +12,22 @@
     - cerrar con la tecla Esc,
     - dejar inerte (sin clic ni teclado) el resto de la página,
     - devolver el foco al botón que lo abrió al cerrarse.
-  Nosotros añadimos: cerrar al pulsar fuera del panel, cerrar al elegir una opción, cerrar si la
-  pantalla pasa a ≥1024px (donde el menú ya no existe) y bloquear el scroll de la página mientras
-  está abierto.
+  Nosotros añadimos: cerrar al pulsar fuera del panel, cerrar al elegir una opción y bloquear el
+  scroll de la página mientras está abierto.
 
   Props:  abierto (Boolean) -> true muestra el menú, false lo oculta.   id (String) -> id del <dialog>.
   Emits:  cerrar -> el menú pide al padre ponerse en cerrado (Esc, "Cerrar", clic fuera, elegir opción).
 -->
 <script setup>
 // 'vue' y 'vue-router' son paquetes instalados en node_modules.
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 // Archivos locales de FarmaApp (alias @ -> src/).
 import { categorias } from '@/mocks/categorias.mock.js'
 import { useBusquedaMedicamentos } from '@/composables/useBusquedaMedicamentos.js'
 import { useCarrito } from '@/composables/useCarrito.js'
-// Componente local (ruta relativa al alias @): la ilustración de cada categoría.
-import ImagenCategoria from '@/components/comunes/ImagenCategoria.vue'
+// Componente local (alias @ -> src/): el icono lineal de cada categoría.
+import IconoCategoria from '@/components/comunes/IconoCategoria.vue'
 
 const props = defineProps({
   abierto: { type: Boolean, default: false },
@@ -38,6 +40,8 @@ const { seleccionarCategoria } = useBusquedaMedicamentos()
 const { totalProductos } = useCarrito()
 
 const dialogo = ref(null) // referencia al elemento <dialog> (template ref)
+// Acordeón: id de la categoría desplegada (null = ninguna). Un solo valor => solo una abierta a la vez.
+const categoriaAbiertaId = ref(null)
 
 // Abre/cierra el <dialog> nativo según la prop `abierto`.
 watch(
@@ -55,28 +59,40 @@ watch(
 // El <dialog> avisa con el evento "close" cuando se cierra (Esc, close()...). Se lo contamos al padre.
 function alCerrarse() {
   document.body.style.overflow = ''
+  categoriaAbiertaId.value = null // al cerrar el cajón, el acordeón vuelve a estar todo plegado
   emit('cerrar')
 }
 
-// En escritorio (>= 1024px) el menú no existe: si estaba abierto y se agranda la ventana, se cierra.
-let consulta = null
-const alCambiarAncho = (evento) => {
-  if (evento.matches) emit('cerrar')
-}
-onMounted(() => {
-  consulta = window.matchMedia('(min-width: 1024px)')
-  consulta.addEventListener('change', alCambiarAncho)
-})
+// El menú ahora también se abre en escritorio (botón naranja "Menú de Categorías"), así que ya no
+// se cierra al cambiar el ancho de la ventana. Solo devolvemos el scroll de la página al desmontar.
 onBeforeUnmount(() => {
-  consulta?.removeEventListener('change', alCambiarAncho)
   document.body.style.overflow = ''
 })
 
 // Elegir una categoría: la deja aplicada como filtro (sin texto de búsqueda), va al inicio y cierra.
+// También se usa para "Ver todo" y para las subcategorías: los medicamentos todavía no tienen
+// subcategoría, así que de momento se filtra por la categoría PADRE (en el futuro vendrá de la API).
 function elegirCategoria(idCategoria) {
   seleccionarCategoria(idCategoria)
   router.push({ name: 'inicio' })
   emit('cerrar')
+}
+
+// `?.` y `?? 0` toleran una categoría sin `subcategorias` (ausente o vacío).
+function tieneSubcategorias(categoria) {
+  return (categoria.subcategorias?.length ?? 0) > 0
+}
+
+// Abre o cierra el acordeón de una categoría. Si ya estaba abierta se pliega; si no, pasa a ser la
+// única abierta (la anterior se pliega sola porque solo guardamos UN id).
+async function alternarAcordeon(idCategoria, evento) {
+  const grupo = evento.currentTarget.closest('li') // <li> con el botón y su sublista
+  const abrir = categoriaAbiertaId.value !== idCategoria
+  categoriaAbiertaId.value = abrir ? idCategoria : null
+  if (abrir) {
+    await nextTick() // esperamos a que la sublista ya esté visible en el DOM
+    grupo?.scrollIntoView({ block: 'nearest' }) // si queda cortada, desplaza solo lo necesario
+  }
 }
 </script>
 
@@ -134,9 +150,52 @@ function elegirCategoria(idCategoria) {
         <h3 class="menu__subtitulo" id="menu-categorias">Categorías</h3>
         <ul class="menu__lista" aria-labelledby="menu-categorias">
           <li v-for="categoria in categorias" :key="categoria.id">
-            <button class="menu__enlace" type="button" @click="elegirCategoria(categoria.id)">
-              <!-- Ilustración pequeña de la categoría (decorativa: el nombre ya está como texto) -->
-              <span class="menu__icono"><ImagenCategoria :categoria="categoria.id" tamano="sm" /></span>
+            <!-- Con subcategorías: botón-acordeón (aria-expanded dice si está abierto; aria-controls
+                 apunta al id de su sublista, único por categoría). -->
+            <template v-if="tieneSubcategorias(categoria)">
+              <button
+                class="menu__enlace menu__enlace--acordeon"
+                :class="{ 'menu__enlace--abierto': categoriaAbiertaId === categoria.id }"
+                type="button"
+                :aria-expanded="categoriaAbiertaId === categoria.id"
+                :aria-controls="`menu-sub-${categoria.id}`"
+                @click="alternarAcordeon(categoria.id, $event)"
+              >
+                <!-- Icono lineal de la categoría (decorativo: el nombre ya está como texto) -->
+                <span class="menu__icono menu__icono--categoria"><IconoCategoria :categoria="categoria.id" /></span>
+                <span class="menu__texto">{{ categoria.nombre }}</span>
+                <span class="menu__flecha" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
+                    <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </button>
+              <!-- Sublista justo después del botón. v-show la oculta con display:none (no se enfoca ni se lee). -->
+              <ul
+                v-show="categoriaAbiertaId === categoria.id"
+                :id="`menu-sub-${categoria.id}`"
+                class="menu__sublista"
+              >
+                <li>
+                  <button
+                    class="menu__subenlace menu__subenlace--todo"
+                    type="button"
+                    @click="elegirCategoria(categoria.id)"
+                  >
+                    Ver todo en {{ categoria.nombre }}
+                  </button>
+                </li>
+                <li v-for="sub in categoria.subcategorias" :key="sub.id">
+                  <button class="menu__subenlace" type="button" @click="elegirCategoria(categoria.id)">
+                    {{ sub.nombre }}
+                  </button>
+                </li>
+              </ul>
+            </template>
+
+            <!-- Sin subcategorías: se comporta como antes (filtra, va al inicio y cierra) -->
+            <button v-else class="menu__enlace" type="button" @click="elegirCategoria(categoria.id)">
+              <span class="menu__icono menu__icono--categoria"><IconoCategoria :categoria="categoria.id" /></span>
               <span class="menu__texto">{{ categoria.nombre }}</span>
             </button>
           </li>
@@ -229,8 +288,11 @@ function elegirCategoria(idCategoria) {
 @media (prefers-reduced-motion: reduce) {
   .menu,
   .menu::backdrop,
-  .menu__panel {
-    transition: none;
+  .menu__panel,
+  .menu__flecha,
+  .menu__enlace,
+  .menu__subenlace {
+    transition: none; /* (el giro del chevron es instantáneo: no es una animación) */
   }
 }
 
@@ -379,6 +441,82 @@ function elegirCategoria(idCategoria) {
   height: 40px;
   padding: 3px;
   border-radius: var(--fa-radio-sm);
+}
+/* Icono lineal de categoría (IconoCategoria): mismo aspecto que los iconos simples. */
+.menu__icono--categoria {
+  box-sizing: border-box;
+  padding: 8px;
+  color: var(--fa-color-primario);
+  background: var(--fa-color-marca-suave);
+  border-radius: var(--fa-radio-sm);
+}
+/* ---- Acordeón de categorías ----
+   El botón reutiliza .menu__enlace (52px de alto); aquí solo se añade lo propio del acordeón. */
+.menu__enlace--acordeon {
+  font-weight: 600;
+}
+/* Abierto (clase que pone el script con aria-expanded="true"): fondo suave + texto verde oscuro
+   (~12:1) + negrita. El chevron girado indica el estado sin depender solo del color. */
+.menu__enlace--abierto,
+.menu__enlace--abierto:hover {
+  font-weight: 700;
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+/* Chevron: a la derecha del texto (el .menu__texto con flex:1 lo empuja). Gira 180° al abrir. */
+.menu__flecha {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--fa-color-texto-suave); /* 7:1 sobre blanco; sobre el fondo suave sigue > 5:1 */
+  transition: none;
+}
+.menu__enlace--abierto .menu__flecha {
+  color: var(--fa-color-primario-oscuro);
+  transform: rotate(180deg); /* chevron hacia arriba cuando está abierto */
+}
+/* Sublista: sangrada bajo el icono, con una línea vertical gris a la izquierda que muestra que
+   pertenece a la categoría de arriba. 28px = 8px de padding del botón + mitad del icono (20px). */
+.menu__sublista {
+  margin: var(--fa-espacio-1) 0 var(--fa-espacio-2) 28px;
+  padding: 0 0 0 var(--fa-espacio-3);
+  list-style: none;
+  border-left: 2px solid var(--fa-borde);
+}
+/* Subopciones: <button> de 48px de alto (>= 44px), a todo el ancho, sin aspecto nativo. */
+.menu__subenlace {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: var(--fa-espacio-2);
+  font: inherit;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--fa-color-texto);
+  background: transparent;
+  border: 0;
+  border-radius: var(--fa-radio-sm);
+  cursor: pointer;
+  transition: none;
+  overflow-wrap: anywhere;
+}
+.menu__subenlace:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+/* "Ver todo en ...": primera opción, en negrita y verde (#0b7a38 sobre blanco 5,4:1). */
+.menu__subenlace--todo {
+  font-weight: 700;
+  color: var(--fa-color-primario);
+}
+.menu__subenlace--todo:hover {
+  color: var(--fa-color-primario-oscuro);
+}
+/* Foco del teclado explícito (azul 3px sobre fondo claro; el cajón ya es blanco). */
+.menu__enlace:focus-visible,
+.menu__subenlace:focus-visible {
+  outline: 3px solid var(--fa-color-foco);
+  outline-offset: 2px;
 }
 /* El texto ocupa el espacio sobrante y empuja contador/etiqueta a la derecha */
 .menu__texto {

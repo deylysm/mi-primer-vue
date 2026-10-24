@@ -4,13 +4,17 @@ import { computed } from 'vue'
 import TarjetaMedicamento from './TarjetaMedicamento.vue' // archivo local, ruta relativa
 
 const props = defineProps({
-  resultados: { type: Array, default: () => [] },
+  resultados: { type: Array, default: () => [] }, // los que se dibujan (ya ordenados y recortados)
+  total: { type: Number, default: null }, // total encontrado antes de recortar (opcional)
 })
 
 // Singular/plural correcto: "1 resultado", "3 resultados".
+// Si se muestran menos de los encontrados: "Mostrando 12 de 30 resultados".
 const textoCantidad = computed(() => {
   const n = props.resultados.length
-  return `${n} ${n === 1 ? 'resultado' : 'resultados'}`
+  const total = props.total ?? n
+  const palabra = total === 1 ? 'resultado' : 'resultados'
+  return total > n ? `Mostrando ${n} de ${total} ${palabra}` : `${total} ${palabra}`
 })
 </script>
 
@@ -45,23 +49,18 @@ const textoCantidad = computed(() => {
 .resultados__item {
   min-width: 0;
 }
-/* Rejilla mobile-first: 1 columna (móvil) -> 2 (>=640px) -> 3 (>=1024px, junto a los
-   filtros laterales) -> 4 (>=1360px, cuando ya hay sitio de sobra). */
+/* Rejilla mobile-first: 1 columna (móvil) -> 2 (>=640px) -> se mantienen 2 junto a los filtros
+   laterales en 1024-1279px (las tarjetas ahora son más anchas y con imagen grande) ->
+   3 (>=1280px, como la maqueta de escritorio). */
 @media (min-width: 640px) {
   .resultados__lista {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--fa-espacio-4);
   }
 }
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .resultados__lista {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--fa-espacio-3);
-  }
-}
-@media (min-width: 1360px) {
-  .resultados__lista {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 </style>

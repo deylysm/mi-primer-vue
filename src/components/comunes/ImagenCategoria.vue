@@ -3,8 +3,8 @@
   Qué es: la "imagen" de una categoría de medicamentos. Es una ILUSTRACIÓN dibujada con SVG
   (gráficos vectoriales escritos como texto dentro del propio HTML): no hay archivos de imagen
   que descargar, se ven nítidas a cualquier tamaño y toman los colores de cada categoría.
-  Quién la usa: TarjetaMedicamento.vue (cabecita de la tarjeta), DetalleMedicamentoView.vue
-  (imagen grande), CarritoView.vue (miniatura de cada línea) y MenuLateral.vue (icono de cada categoría).
+  Quién la usa: ImagenMedicamento.vue (como respaldo cuando un medicamento no tiene imagen o falla;
+  esa es la que usan la tarjeta, el detalle y el carrito) y MenuLateral.vue (icono de cada categoría).
 
   CONTRATO ESTABLE (no cambia, así los demás componentes no se tocan):
     - prop `categoria` (String): id de la categoría ('analgesico', 'vitaminas'...). Si no existe

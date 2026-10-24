@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Caja verde de Paracetamol 500 mg, 100 tabletas, con una lámina de tabletas alargadas</title>
+  <defs>
+    <g id="pastilla"><rect x="-15" y="-8" width="30" height="16" rx="8" fill="#fff" stroke="#064e24" stroke-width="2.5"/><path d="M0 -8V8" stroke="#a8e0bd" stroke-width="2.5"/></g>
+  </defs>
+  <rect width="400" height="400" rx="48" fill="#e6f6ec"/>
+  <ellipse cx="195" cy="338" rx="150" ry="14" fill="#000" opacity=".14"/>
+  <g stroke="#064e24" stroke-width="3" stroke-linejoin="round">
+    <polygon points="260,120 305,98 305,298 260,320" fill="#109d48"/>
+    <polygon points="70,120 115,98 305,98 260,120" fill="#a8e0bd"/>
+    <rect x="70" y="120" width="190" height="200" fill="#109d48"/>
+  </g>
+  <polygon points="260,170 305,148 305,250 260,272" fill="#fff"/>
+  <polygon points="260,272 305,250 305,298 260,320" fill="#064e24"/>
+  <polygon points="260,120 305,98 305,298 260,320" fill="#000" opacity=".22"/>
+  <rect x="70" y="170" width="190" height="102" fill="#fff"/>
+  <rect x="70" y="272" width="190" height="48" fill="#064e24"/>
+  <rect x="70" y="120" width="190" height="200" fill="none" stroke="#064e24" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M70 170H260M70 272H260" stroke="#064e24" stroke-width="2.5"/>
+  <!-- Emblema: dos pastillas redondas -->
+  <g transform="translate(104 145)" fill="#fff"><circle cx="-6" cy="5" r="10"/><circle cx="9" cy="-7" r="7"/></g>
+  <rect x="115" y="222" width="100" height="32" rx="16" fill="#a8e0bd"/>
+  <g font-family="system-ui, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="165" y="208" font-size="26" fill="#064e24">Paracetamol</text>
+    <text x="165" y="245" font-size="22" fill="#064e24">500 mg</text>
+    <text x="165" y="303" font-size="20" fill="#fff">100 tabletas</text>
+  </g>
+  <g transform="translate(238 250) rotate(-12)">
+    <rect width="120" height="76" rx="9" fill="#dfe5ea" stroke="#064e24" stroke-width="3"/>
+    <use href="#pastilla" x="24" y="22"/><use href="#pastilla" x="60" y="22"/><use href="#pastilla" x="96" y="22"/>
+    <use href="#pastilla" x="24" y="52"/><use href="#pastilla" x="60" y="52"/><use href="#pastilla" x="96" y="52"/>
+  </g>
+</svg>

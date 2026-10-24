@@ -11,26 +11,42 @@
 // 'vue' es el paquete instalado en node_modules.
 import { ref, reactive, computed, watch } from 'vue'
 // Alias '@' -> carpeta src/ (configurado en vite.config.js).
-import { buscarMedicamentos, listarFarmacias } from '@/services/medicamentosService.js'
+import { buscarMedicamentos, listarFarmacias, listarMarcas } from '@/services/medicamentosService.js'
 import { normalizar } from '@/utils/normalizar.js'
 
 // Se exporta para que la vista pueda mostrar el mismo mínimo en la barra de búsqueda.
 export const MIN_CARACTERES = 2
 const DEBOUNCE_MS = 300
 
+// Opciones de los selects "Ordenar" y "Mostrar" (la vista las recorre con v-for).
+export const OPCIONES_ORDEN = [
+  { valor: 'relevancia', texto: 'Relevancia' },
+  { valor: 'precio-asc', texto: 'Precio: menor a mayor' },
+  { valor: 'precio-desc', texto: 'Precio: mayor a menor' },
+  { valor: 'nombre', texto: 'Nombre A–Z' },
+]
+export const OPCIONES_MOSTRAR = [6, 12, 24]
+
 const filtrosPorDefecto = () => ({
   farmaciaIds: [],
   soloConStock: false,
   precioMax: null,
-  orden: 'precio-asc',
   categoria: '', // id de categoría; '' = todas
+  marca: null, // nombre de la marca; null = todas
+  receta: '', // '' = todas | 'sin-receta' | 'con-receta'
 })
 
 // ---- Estado compartido (nivel de módulo) ----
 const termino = ref('')
+// Filtros que SÍ se piden al servicio (cambiar uno lanza una búsqueda nueva).
 const filtros = reactive(filtrosPorDefecto())
+// Presentación de la lista: se aplican en el navegador sobre los resultados ya cargados,
+// así que cambiarlos NO llama al servicio.
+const orden = ref('relevancia') // 'relevancia' | 'precio-asc' | 'precio-desc' | 'nombre'
+const mostrar = ref(12) // 6 | 12 | 24 productos a la vez
 const resultados = ref([])
 const farmacias = ref([])
+const marcas = ref([]) // marcas disponibles (derivadas de los datos)
 const cargando = ref(false)
 const error = ref('')
 const buscado = ref(false) // true si ya se hizo al menos una búsqueda válida
@@ -40,13 +56,16 @@ const terminoBuscado = ref('') // término con el que se obtuvieron los 'resulta
 let temporizador = null
 let contadorPeticion = 0 // sirve para descartar respuestas obsoletas
 let pidiendoFarmacias = false
+let pidiendoMarcas = false
 
 const terminoNormalizado = computed(() => normalizar(termino.value))
 // El texto por sí solo basta si tiene el mínimo de letras.
 const textoSuficiente = computed(() => terminoNormalizado.value.length >= MIN_CARACTERES)
-// Se puede buscar con texto suficiente O con una categoría elegida (aunque no haya texto).
-const buscable = computed(() => textoSuficiente.value || filtros.categoria !== '')
-// Hay texto pero es demasiado corto (y no hay categoría que permita buscar sin texto):
+// Se puede buscar con texto suficiente O con una categoría o marca elegida (aunque no haya texto).
+const buscable = computed(
+  () => textoSuficiente.value || filtros.categoria !== '' || filtros.marca !== null,
+)
+// Hay texto pero es demasiado corto (y no hay categoría/marca que permita buscar sin texto):
 // la interfaz puede mostrar una pista.
 const faltanCaracteres = computed(
   () => terminoNormalizado.value.length > 0 && !buscable.value,
@@ -93,7 +112,7 @@ async function buscarAhora() {
 
   cargando.value = true
   error.value = ''
-  // Con una categoría elegida y un texto demasiado corto, el texto se ignora (se busca '').
+  // Con una categoría/marca elegida y un texto demasiado corto, el texto se ignora (se busca '').
   const terminoLanzado = textoSuficiente.value ? termino.value : '' // se captura al lanzar
   try {
     const datos = await buscarMedicamentos({
@@ -101,8 +120,9 @@ async function buscarAhora() {
       farmaciaIds: [...filtros.farmaciaIds],
       soloConStock: filtros.soloConStock,
       precioMax: filtros.precioMax,
-      orden: filtros.orden,
       categoria: filtros.categoria,
+      marca: filtros.marca,
+      receta: filtros.receta,
     })
     if (id !== contadorPeticion) return // llegó tarde: se ignora
     resultados.value = datos
@@ -128,8 +148,10 @@ function limpiarFiltros() {
   // Asignar el mismo valor primitivo no dispara el watch.
   filtros.soloConStock = porDefecto.soloConStock
   filtros.precioMax = porDefecto.precioMax
-  filtros.orden = porDefecto.orden
   filtros.categoria = porDefecto.categoria
+  filtros.marca = porDefecto.marca
+  filtros.receta = porDefecto.receta
+  // `orden` y `mostrar` no son filtros (solo cambian cómo se presenta la lista): no se tocan.
 }
 
 // Elige una categoría desde el menú: se borra el texto para listar toda la categoría.
@@ -151,8 +173,9 @@ watch(
     () => filtros.farmaciaIds,
     () => filtros.soloConStock,
     () => filtros.precioMax,
-    () => filtros.orden,
     () => filtros.categoria,
+    () => filtros.marca,
+    () => filtros.receta,
   ],
   () => {
     cancelarTemporizador()
@@ -179,13 +202,64 @@ function cargarFarmacias() {
     })
 }
 
+// Igual que las farmacias: las marcas se piden una sola vez.
+function cargarMarcas() {
+  if (pidiendoMarcas || marcas.value.length > 0) return
+  pidiendoMarcas = true
+  listarMarcas()
+    .then((lista) => {
+      marcas.value = lista
+    })
+    .catch(() => {
+      marcas.value = []
+    })
+    .finally(() => {
+      pidiendoMarcas = false
+    })
+}
+
+// ---- Ordenar + mostrar (solo en el navegador, sin llamar al servicio) ----
+const porNombre = (a, b) => a.nombre.localeCompare(b.nombre, 'es')
+
+// Relevancia: primero los nombres que EMPIEZAN por lo buscado, luego los que lo CONTIENEN,
+// luego el resto (p. ej. coincidencias por principio activo); a igualdad, el más barato.
+function puntaje(oferta) {
+  const t = normalizar(terminoBuscado.value)
+  if (!t) return 0
+  const nombre = normalizar(oferta.nombre)
+  if (nombre.startsWith(t)) return 0
+  if (nombre.includes(t)) return 1
+  return 2
+}
+
+// `resultados` NO se modifica: se copia con [...] antes de ordenar (sort ordena "en el sitio").
+const resultadosOrdenados = computed(() => {
+  const lista = [...resultados.value]
+  if (orden.value === 'precio-asc') lista.sort((a, b) => a.precio - b.precio || porNombre(a, b))
+  else if (orden.value === 'precio-desc') lista.sort((a, b) => b.precio - a.precio || porNombre(a, b))
+  else if (orden.value === 'nombre') lista.sort((a, b) => porNombre(a, b) || a.precio - b.precio)
+  else lista.sort((a, b) => puntaje(a) - puntaje(b) || a.precio - b.precio || porNombre(a, b))
+  return lista
+})
+
+// Lista que se dibuja: ya ordenada y recortada a `mostrar` productos.
+const resultadosVisibles = computed(() => resultadosOrdenados.value.slice(0, Number(mostrar.value)))
+// Total encontrado (antes de recortar), por si la vista quiere decir "12 de 30".
+const totalResultados = computed(() => resultados.value.length)
+
 export function useBusquedaMedicamentos() {
   cargarFarmacias()
+  cargarMarcas()
 
   return {
     termino,
     filtros,
+    orden,
+    mostrar,
     resultados,
+    resultadosVisibles,
+    totalResultados,
+    marcas,
     terminoBuscado,
     farmacias,
     cargando,

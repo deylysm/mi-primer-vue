@@ -11,7 +11,9 @@ import { ref, computed, watch } from 'vue'
 
 const CLAVE_ALMACEN = 'farmaapp-carrito' // nombre con el que se guarda en localStorage
 
-// Cada ítem: { medicamentoId, farmaciaId, nombre, farmaciaNombre, precio, cantidad, categoria, stock }
+// Cada ítem: { medicamentoId, farmaciaId, nombre, farmaciaNombre, precio, cantidad, categoria, imagen, stock }
+// (`imagen` es la URL de la imagen del producto; es opcional: los ítems guardados antes de que
+// existiera no la tienen y se dibujan con la ilustración de su categoría.)
 // (`stock` es el stock de esa farmacia al agregar: sirve para no pasar de ese tope).
 function esItemValido(i) {
   return (
@@ -38,6 +40,8 @@ function cargarGuardado() {
     return datos.filter(esItemValido).map((i) => ({
       ...i,
       categoria: i.categoria ?? '',
+      // Ítems antiguos sin `imagen` (o con un valor que no es texto) quedan en '' = respaldo de categoría.
+      imagen: typeof i.imagen === 'string' ? i.imagen : '',
       // Si faltara el stock guardado, se usa al menos lo que ya había en el carrito.
       stock: Number.isFinite(i.stock) ? i.stock : i.cantidad,
     }))
@@ -72,7 +76,7 @@ const buscar = (medicamentoId, farmaciaId) =>
 /**
  * Agrega `cantidad` unidades de un medicamento en una farmacia.
  * Si ya estaba (mismo medicamento + misma farmacia) se SUMA, sin pasar del stock.
- * `producto` = { medicamentoId, farmaciaId, nombre, farmaciaNombre, precio, categoria, stock }.
+ * `producto` = { medicamentoId, farmaciaId, nombre, farmaciaNombre, precio, categoria, imagen, stock }.
  * Devuelve { agregadas, enCarrito, limitado }:
  *   agregadas = unidades realmente añadidas (puede ser menos de las pedidas, o 0),
  *   enCarrito = cantidad total de ese producto tras la operación,
@@ -91,6 +95,8 @@ function agregar(producto, cantidad = 1) {
     if (existente) {
       existente.cantidad += agregadas
       existente.stock = stock
+      // Si el ítem se guardó sin imagen y ahora sí la tenemos, la completamos.
+      if (!existente.imagen && producto.imagen) existente.imagen = producto.imagen
     } else {
       items.value.push({
         medicamentoId: producto.medicamentoId,
@@ -99,6 +105,7 @@ function agregar(producto, cantidad = 1) {
         farmaciaNombre: producto.farmaciaNombre,
         precio: producto.precio,
         categoria: producto.categoria ?? '',
+        imagen: producto.imagen ?? '',
         cantidad: agregadas,
         stock,
       })

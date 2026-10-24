@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Caja roja de Omeprazol 20 mg, 14 cápsulas, con una lámina de cápsulas rojo y blanco</title>
+  <defs>
+    <g id="pastilla"><rect x="-16" y="-8.5" width="32" height="17" rx="8.5" fill="#e0564b"/><path d="M0 -8.5h7.5a8.5 8.5 0 0 1 0 17h-7.5z" fill="#f6b3ad"/><rect x="-16" y="-8.5" width="32" height="17" rx="8.5" fill="none" stroke="#8a1c15" stroke-width="2.5"/><path d="M0 -8.5V8.5" stroke="#8a1c15" stroke-width="2"/></g>
+  </defs>
+  <rect width="400" height="400" rx="48" fill="#fde8e6"/>
+  <ellipse cx="195" cy="338" rx="150" ry="14" fill="#000" opacity=".14"/>
+  <g stroke="#8a1c15" stroke-width="3" stroke-linejoin="round">
+    <polygon points="260,120 305,98 305,298 260,320" fill="#e0564b"/>
+    <polygon points="70,120 115,98 305,98 260,120" fill="#f6b3ad"/>
+    <rect x="70" y="120" width="190" height="200" fill="#e0564b"/>
+  </g>
+  <polygon points="260,170 305,148 305,250 260,272" fill="#fff"/>
+  <polygon points="260,272 305,250 305,298 260,320" fill="#8a1c15"/>
+  <polygon points="260,120 305,98 305,298 260,320" fill="#000" opacity=".22"/>
+  <rect x="70" y="170" width="190" height="102" fill="#fff"/>
+  <rect x="70" y="272" width="190" height="48" fill="#8a1c15"/>
+  <rect x="70" y="120" width="190" height="200" fill="none" stroke="#8a1c15" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M70 170H260M70 272H260" stroke="#8a1c15" stroke-width="2.5"/>
+  <!-- Emblema: escudo (protege el estómago) -->
+  <path transform="translate(104 145)" d="M0 -16L14 -10V2C14 10 6 15 0 18C-6 15 -14 10 -14 2V-10z" fill="#fff"/>
+  <rect x="115" y="222" width="100" height="32" rx="16" fill="#f6b3ad"/>
+  <g font-family="system-ui, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="165" y="208" font-size="27" fill="#8a1c15">Omeprazol</text>
+    <text x="165" y="245" font-size="22" fill="#8a1c15">20 mg</text>
+    <text x="165" y="303" font-size="20" fill="#fff">14 cápsulas</text>
+  </g>
+  <g transform="translate(238 250) rotate(-12)">
+    <rect width="120" height="76" rx="9" fill="#dfe5ea" stroke="#8a1c15" stroke-width="3"/>
+    <use href="#pastilla" x="24" y="22"/><use href="#pastilla" x="60" y="22"/><use href="#pastilla" x="96" y="22"/>
+    <use href="#pastilla" x="24" y="52"/><use href="#pastilla" x="60" y="52"/><use href="#pastilla" x="96" y="52"/>
+  </g>
+</svg>

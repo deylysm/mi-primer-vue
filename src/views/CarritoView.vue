@@ -12,7 +12,7 @@ import { RouterLink } from 'vue-router'
 // Archivos locales de FarmaApp (alias @ -> src/).
 import { useCarrito } from '@/composables/useCarrito.js'
 import { formatearPrecio } from '@/utils/normalizar.js'
-import ImagenCategoria from '@/components/comunes/ImagenCategoria.vue'
+import ImagenMedicamento from '@/components/comunes/ImagenMedicamento.vue'
 import ControlCantidad from '@/components/comunes/ControlCantidad.vue'
 
 const { items, totalProductos, totalPrecio, cambiarCantidad, quitar, vaciar } = useCarrito()
@@ -65,7 +65,8 @@ const subtotal = (item) => Math.round(item.precio * item.cantidad * 100) / 100
     <div v-else class="carrito__contenido">
       <ul class="lista">
         <li v-for="item in items" :key="clave(item)" class="linea">
-          <ImagenCategoria :categoria="item.categoria" tamano="sm" />
+          <!-- imagen puede faltar en ítems guardados antes: entonces se ve la ilustración de categoría -->
+          <ImagenMedicamento :imagen="item.imagen" :categoria="item.categoria" :nombre="item.nombre" tamano="sm" />
 
           <div class="linea__datos">
             <h2 class="linea__nombre">

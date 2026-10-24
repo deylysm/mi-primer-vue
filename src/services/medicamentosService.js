@@ -17,10 +17,18 @@ export async function listarFarmacias() {
   return farmacias.map((f) => ({ ...f }))
 }
 
+/** Devuelve las marcas distintas que hay en los datos, ordenadas A-Z (para el filtro "Marca"). */
+export async function listarMarcas() {
+  await esperar(RETRASO_MS)
+  const marcas = new Set(medicamentos.map((m) => m.marca).filter(Boolean))
+  return [...marcas].sort((a, b) => a.localeCompare(b, 'es'))
+}
+
 /**
  * Busca medicamentos y devuelve UNA entrada por oferta (medicamento x farmacia).
  * Filtros en AND: término, farmacias (OR entre ellas; vacío = todas),
- * soloConStock, precioMax (inclusivo; null = sin límite), categoria ('' = todas).
+ * soloConStock, precioMax (inclusivo; null = sin límite), categoria ('' = todas),
+ * marca (null = todas), receta ('' = todas | 'sin-receta' | 'con-receta').
  * orden: 'precio-asc' (defecto) | 'precio-desc' | 'nombre'.
  *
  * PRUEBA MANUAL DE ERROR: si el término normalizado es exactamente "error",
@@ -33,6 +41,8 @@ export async function buscarMedicamentos({
   precioMax = null,
   orden = 'precio-asc',
   categoria = '', // id de categoría; '' = todas
+  marca = null, // nombre exacto de la marca; null = todas
+  receta = '', // '' = todas | 'sin-receta' | 'con-receta'
 } = {}) {
   await esperar(RETRASO_MS)
 
@@ -45,6 +55,9 @@ export async function buscarMedicamentos({
   const ofertas = []
   for (const med of medicamentos) {
     if (categoria && med.categoria !== categoria) continue
+    if (marca && med.marca !== marca) continue
+    if (receta === 'sin-receta' && med.requiereReceta) continue
+    if (receta === 'con-receta' && !med.requiereReceta) continue
     const coincide =
       normalizar(med.nombre).includes(buscado) ||
       normalizar(med.principioActivo).includes(buscado)
@@ -61,8 +74,11 @@ export async function buscarMedicamentos({
         presentacion: med.presentacion,
         requiereReceta: med.requiereReceta,
         categoria: med.categoria,
+        imagen: med.imagen ?? '', // URL de la imagen del producto ('' = usar el dibujo de la categoría)
+        marca: med.marca,
         farmacia: { id: farmacia.id, nombre: farmacia.nombre, direccion: farmacia.direccion },
         precio: item.precio,
+        precioAnterior: item.precioAnterior ?? null, // precio antes de la oferta (si hay)
         stock: item.stock,
       })
     }
@@ -120,6 +136,7 @@ export async function obtenerMedicamentoPorId(id) {
     presentacion: med.presentacion,
     requiereReceta: med.requiereReceta,
     categoria: med.categoria,
+    imagen: med.imagen ?? '', // URL de la imagen del producto ('' = usar el dibujo de la categoría)
     ofertas,
   }
 }

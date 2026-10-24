@@ -8,7 +8,10 @@
   y esta cabecera solo se ocupa del aspecto y de la navegación.
 
   Elementos REALES:
-    - Botón hamburguesa (<button>): solo se ve por debajo de 1024px; abre MenuLateral.vue.
+    - Botón del menú (<button>): círculo naranja con tres rayas (y, desde 1024px, el texto
+      "Menú de Categorías"). Abre/cierra el menú: en escritorio (>= 1024px) el mega-menú
+      MenuEscritorio.vue (y las rayas pasan a ser una X); en móvil/tablet el cajón MenuLateral.vue.
+      Solo UNO de los dos menús está montado a la vez (v-if / v-else según el ancho de pantalla).
     - Logotipo: enlace (<RouterLink>) al inicio.
     - "Identifícate": botón desactivado (aria-disabled, title "Próximamente"); aún no hay login.
     - Bolsa: enlace a /carrito con el contador real de productos (viene de useCarrito.js).
@@ -19,17 +22,29 @@
 -->
 <script setup>
 // 'vue' y 'vue-router' son paquetes instalados en node_modules.
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 // Archivos locales (ruta relativa ./ = misma carpeta; alias @ -> src/).
 import MenuLateral from './MenuLateral.vue'
+import MenuEscritorio from './MenuEscritorio.vue'
 import { useCarrito } from '@/composables/useCarrito.js'
 
 const route = useRoute()
 const { totalProductos } = useCarrito()
 
-const menuAbierto = ref(false) // ¿está desplegado el menú lateral?
-const botonMenu = ref(null) // referencia al <button> hamburguesa (para devolverle el foco)
+const menuAbierto = ref(false) // ¿está desplegado el menú (el de escritorio o el lateral)?
+const botonMenu = ref(null) // referencia al <button> naranja (para devolverle el foco)
+
+// ¿Pantalla de escritorio (>= 1024px)? matchMedia es la versión en JavaScript de una @media de CSS.
+// Con `change` el navegador nos avisa cuando la ventana cruza esos 1024px.
+const consultaEscritorio = window.matchMedia('(min-width: 1024px)')
+const esEscritorio = ref(consultaEscritorio.matches)
+function alCambiarAncho(evento) {
+  esEscritorio.value = evento.matches
+  menuAbierto.value = false // al cambiar de tipo de menú se cierra el abierto (no tendría sentido mantenerlo)
+}
+consultaEscritorio.addEventListener('change', alCambiarAncho)
+onBeforeUnmount(() => consultaEscritorio.removeEventListener('change', alCambiarAncho))
 
 // Texto para lectores de pantalla: "Carrito, 3 productos".
 const etiquetaCarrito = computed(() => {
@@ -39,13 +54,18 @@ const etiquetaCarrito = computed(() => {
 // El globito no crece sin límite: a partir de 100 muestra "99+".
 const contador = computed(() => (totalProductos.value > 99 ? '99+' : String(totalProductos.value)))
 
-function abrirMenu() {
-  menuAbierto.value = true
+// El botón naranja abre y (en escritorio, donde el menú no tapa el botón) también cierra.
+function alternarMenu() {
+  if (menuAbierto.value) cerrarMenu()
+  else menuAbierto.value = true
 }
-// Cierra el menú y devuelve el foco al botón hamburguesa (si está visible).
-async function cerrarMenu() {
+// Cierra el menú y devuelve el foco al botón naranja (si está visible).
+// `opciones.devolverFoco === false` lo usa MenuEscritorio cuando el foco ya se fue a otro elemento
+// (p. ej. con Tab): así no se lo quitamos.
+async function cerrarMenu(opciones) {
   if (!menuAbierto.value) return
   menuAbierto.value = false
+  if (opciones?.devolverFoco === false) return
   await nextTick()
   botonMenu.value?.focus()
 }
@@ -59,20 +79,33 @@ watch(() => route.fullPath, () => {
 <template>
   <header class="cabecera">
     <div class="cabecera__fila fa-contenedor">
-      <!-- Menú hamburguesa: botón real, solo visible por debajo de 1024px.
-           aria-expanded dice si el menú está abierto; aria-controls apunta al id del <dialog>. -->
+      <!-- Botón del menú: círculo naranja con tres rayas (en escritorio, una X mientras está abierto).
+           En móvil/tablet solo se ve el círculo; desde 1024px aparece al lado el texto "Menú de / Categorías".
+           aria-expanded dice si el menú está abierto; aria-controls apunta al id del menú que toca:
+           el mega-menú en escritorio o el <dialog> en móvil.
+           aria-label contiene el texto visible ("Menú de Categorías"): así quien usa control por
+           voz puede decir "clic en Menú de categorías" (WCAG 2.5.3, etiqueta en el nombre). Es fijo:
+           el estado (abierto/cerrado) ya lo comunica aria-expanded. -->
       <button
         ref="botonMenu"
         class="cabecera__menu"
         type="button"
-        aria-label="Abrir menú"
-        aria-controls="menu-lateral"
+        aria-label="Menú de categorías"
+        :aria-controls="esEscritorio ? 'menu-escritorio' : 'menu-lateral'"
         :aria-expanded="menuAbierto"
-        @click="abrirMenu"
+        @click="alternarMenu"
       >
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
+        <span class="cabecera__menu-icono">
+          <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <!-- En móvil el icono no cambia: el cajón modal tiene su propio botón "Cerrar" -->
+            <path :d="esEscritorio && menuAbierto ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16'" />
+          </svg>
+        </span>
+        <!-- aria-hidden: el nombre del botón ya lo da aria-label (así no se lee dos veces) -->
+        <span class="cabecera__menu-texto" aria-hidden="true">
+          <span class="cabecera__menu-linea1">Menú de</span>
+          <span class="cabecera__menu-linea2">Categorías</span>
+        </span>
       </button>
 
       <!-- Logotipo propio: cruz dibujada en SVG + texto "FarmaApp" (Poppins 800).
@@ -85,12 +118,30 @@ watch(() => route.fullPath, () => {
         <span class="logo__texto"><span class="logo__farma">Farma</span><span class="logo__app">App</span></span>
       </RouterLink>
 
+      <!-- Ubicación: se ve en la cabecera solo en pantallas anchas (>= 1360px); en las demás
+           sigue la franja verde de abajo. Es el mismo dato ("Farmacias en Lima"), no una función nueva:
+           nunca se muestran las dos a la vez (la oculta display:none, que también la quita del lector). -->
+      <p class="cabecera__ubicacion">
+        <svg class="cabecera__pin" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+          <circle cx="12" cy="9.5" r="2.5" />
+        </svg>
+        <span class="cabecera__ubicacion-texto">
+          <strong class="cabecera__ubicacion-titulo">Farmacias en Lima</strong>
+          <span class="cabecera__ubicacion-nota">Precios y stock referenciales</span>
+        </span>
+      </p>
+
       <!-- Zona derecha: Identifícate (aún no disponible) + bolsa del carrito -->
       <div class="cabecera__acciones">
         <!-- aria-disabled (no "disabled"): sigue siendo enfocable y el lector lo anuncia como no disponible.
              El clic no hace nada (.prevent). El title muestra "Próximamente" al pasar el ratón. -->
         <button class="acceso" type="button" aria-disabled="true" title="Próximamente" @click.prevent>
-          <span class="acceso__texto">Identifícate</span>
+          <span class="acceso__texto">
+            <!-- aria-hidden: "Bienvenid@" es solo un saludo decorativo (un lector diría "arroba") -->
+            <span class="acceso__saludo" aria-hidden="true">Bienvenid@</span>
+            <span class="acceso__accion">Iniciar sesión</span>
+          </span>
           <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <circle cx="12" cy="8" r="4" />
             <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
@@ -113,8 +164,11 @@ watch(() => route.fullPath, () => {
       </div>
     </div>
 
-    <!-- Cajón lateral (<dialog>): se muestra encima de todo cuando menuAbierto es true. -->
-    <MenuLateral id="menu-lateral" :abierto="menuAbierto" @cerrar="cerrarMenu" />
+    <!-- Solo UNO de los dos menús existe a la vez:
+         - escritorio: mega-menú (panel no modal bajo la cabecera);
+         - móvil/tablet: cajón lateral (<dialog> modal), que se muestra encima de todo. -->
+    <MenuEscritorio v-if="esEscritorio" :abierto="menuAbierto" @cerrar="cerrarMenu" />
+    <MenuLateral v-else id="menu-lateral" :abierto="menuAbierto" @cerrar="cerrarMenu" />
   </header>
 
   <!-- Franja verde de ubicación (a todo el ancho). Texto blanco sobre #0b7a38 = 5.4:1. -->
@@ -183,6 +237,10 @@ watch(() => route.fullPath, () => {
   grid-area: buscar;
   min-width: 0; /* deja que el buscador se encoja en vez de ensanchar la página */
 }
+.cabecera__ubicacion {
+  grid-area: ubic;
+  display: none; /* oculta hasta 1360px: ahí la ubicación la muestra la franja verde */
+}
 
 /* ---- Iconos (todos de 24px, dibujados con trazo del color del texto) ---- */
 .icono {
@@ -195,10 +253,8 @@ watch(() => route.fullPath, () => {
   stroke-linejoin: round;
 }
 
-/* Caja de 44x44 (tamaño táctil estándar) que centra un icono.
-   El botón hamburguesa y la bolsa (un <a>) anulan los estilos por defecto del botón y el
-   estilo global de "a" de main.css (padding, fondo verde al pasar el ratón, transición). */
-.cabecera__menu,
+/* La bolsa del carrito (un <a>): caja de 44x44 (tamaño táctil estándar) que centra el icono.
+   Anula el estilo global de "a" de main.css (padding, fondo verde al pasar el ratón, transición). */
 .bolsa {
   position: relative;
   display: inline-flex;
@@ -207,27 +263,76 @@ watch(() => route.fullPath, () => {
   width: var(--fa-tactil-min);
   height: var(--fa-tactil-min);
   padding: 0;
-  color: var(--fa-color-primario-oscuro);
+  color: var(--fa-color-primario); /* verde de marca: 5,4:1 sobre blanco */
   background: transparent;
   border: 0;
   border-radius: var(--fa-radio-sm);
   cursor: pointer;
   transition: none;
 }
-.cabecera__menu:hover,
 .bolsa:hover {
   color: var(--fa-color-primario-oscuro);
   background: var(--fa-color-marca-suave);
 }
-/* Hamburguesa: con un borde fino parece un botón (y no un simple dibujo). #7a8794 sobre blanco
-   = 3,7:1, cumple el mínimo de 3:1 para componentes de interfaz (WCAG 1.4.11). */
+
+/* Botón del menú: un <button> sin aspecto de botón nativo que agrupa
+   [círculo naranja con icono] + [texto en dos líneas, solo en escritorio]. */
 .cabecera__menu {
-  border: 1px solid var(--fa-borde-control);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--fa-tactil-min);
+  padding: 0;
+  color: var(--fa-color-texto);
+  background: transparent;
+  border: 0;
+  border-radius: var(--fa-radio-pildora); /* el aro de foco sigue la forma redondeada */
+  cursor: pointer;
+  text-align: left;
+  transition: none;
 }
-/* Mientras el menú está abierto el botón queda resaltado (aria-expanded="true") */
-.cabecera__menu[aria-expanded='true'] {
-  background: var(--fa-color-marca-suave);
-  border-color: var(--fa-color-primario);
+/* El círculo naranja: 44x44 (área táctil mínima). Icono OSCURO sobre naranja = ~7:1.
+   El naranja solo se usa aquí, como acento: el texto va sobre fondo claro. */
+.cabecera__menu-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--fa-tactil-min);
+  height: var(--fa-tactil-min);
+  color: var(--fa-color-texto);
+  background: var(--fa-color-naranja);
+  border-radius: 50%;
+}
+.cabecera__menu:hover .cabecera__menu-icono {
+  background: var(--fa-color-naranja-hover);
+}
+/* Mientras el menú está abierto (aria-expanded="true") el círculo lleva un doble aro
+   blanco + verde: se nota que está "activo" sin depender solo del color naranja. */
+.cabecera__menu[aria-expanded='true'] .cabecera__menu-icono {
+  background: var(--fa-color-naranja-hover); /* naranja un poco más intenso (icono oscuro: ~6:1) */
+  box-shadow: 0 0 0 2px var(--fa-fondo-superficie), 0 0 0 4px var(--fa-color-primario);
+}
+/* Con foco de teclado y el menú abierto, el aro azul global (offset 2px) chocaría con el doble
+   aro de arriba (4px). Lo separamos a 6px para que se vean los dos. */
+.cabecera__menu[aria-expanded='true']:focus-visible {
+  outline-offset: 6px;
+}
+/* El texto del menú: oculto en móvil/tablet (solo círculo); se muestra desde 1024px */
+.cabecera__menu-texto {
+  display: none;
+  flex-direction: column;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.cabecera__menu-linea1 {
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave); /* 7:1 sobre blanco */
+}
+.cabecera__menu-linea2 {
+  font-size: var(--fa-texto-base);
+  font-weight: 700;
+  color: var(--fa-color-texto);
 }
 
 /* ---- Logotipo ---- */
@@ -286,15 +391,33 @@ watch(() => route.fullPath, () => {
   font: inherit;
   font-size: var(--fa-texto-sm);
   font-weight: 600;
-  color: var(--fa-color-texto-suave); /* atenuado: #52606d sobre #f4f6f5 = 6,0:1 (sigue siendo legible) */
-  background: var(--fa-fondo-pagina);
-  border: 1px dashed var(--fa-borde-control); /* borde discontinuo = "aún no disponible" */
+  text-align: left;
+  line-height: 1.2;
+  color: var(--fa-color-texto-suave); /* atenuado: #52606d sobre blanco = 7:1 (sigue siendo legible) */
+  background: transparent;
+  border: 0;
   border-radius: var(--fa-radio-sm);
-  cursor: not-allowed;
+  cursor: not-allowed; /* el puntero "prohibido" avisa de que aún no funciona */
   transition: none;
 }
 .acceso:hover {
-  background: var(--fa-fondo-pagina); /* no reacciona: no hace nada todavía */
+  background: transparent; /* no reacciona: no hace nada todavía */
+}
+/* El icono de usuario va ANTES del texto aunque en el HTML esté después (order: -1) y en verde. */
+.acceso .icono {
+  order: -1;
+  width: 28px;
+  height: 28px;
+  color: var(--fa-color-primario);
+}
+.acceso__saludo {
+  display: block;
+  font-weight: 400;
+}
+.acceso__accion {
+  display: block;
+  font-weight: 700;
+  color: var(--fa-color-texto-suave);
 }
 /* Un poco de aire entre "Identifícate" y la bolsa */
 .acceso + .bolsa {
@@ -387,29 +510,33 @@ watch(() => route.fullPath, () => {
     font-size: 1.375rem;
   }
   .acceso__texto {
-    display: inline;
+    display: block;
   }
   .franja__nota {
     display: block;
   }
 }
 
-/* ---- Escritorio (>= 1024px): todo en UNA fila: logotipo | buscador | acciones ---- */
+/* ---- Escritorio (>= 1024px): todo en UNA fila ----
+     [logotipo] [menú de categorías] [buscador ancho .......] [acciones]
+   El buscador ocupa el hueco sobrante (minmax(0, 1fr)). */
 @media (min-width: 1024px) {
   .cabecera__fila {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'logo buscar acciones';
-    column-gap: var(--fa-espacio-5);
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: 'logo menu buscar acciones';
+    column-gap: var(--fa-espacio-4);
     padding-block: var(--fa-espacio-3);
   }
-  /* El menú hamburguesa solo existe en pantallas pequeñas */
+  /* Ahora el botón del menú también se ve en escritorio, con su texto al lado del círculo. */
+  .cabecera__menu-texto {
+    display: flex;
+  }
   .cabecera__menu {
-    display: none;
+    padding-right: var(--fa-espacio-2);
   }
   .cabecera__buscador {
     width: 100%;
-    max-width: 680px;
-    justify-self: center;
+    max-width: 880px;
   }
   .logo {
     font-size: 1.625rem;
@@ -417,6 +544,68 @@ watch(() => route.fullPath, () => {
   .logo__icono {
     width: 32px;
     height: 32px;
+  }
+  .bolsa {
+    width: 48px;
+    height: 48px;
+  }
+  .bolsa .icono {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* ---- Pantalla ancha (>= 1360px): la ubicación pasa de la franja verde a la cabecera ----
+   Con menos ancho no cabría sin apretar el buscador, por eso solo aquí. */
+@media (min-width: 1360px) {
+  .cabecera__fila {
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    grid-template-areas: 'logo menu buscar ubic acciones';
+  }
+  .cabecera__ubicacion {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fa-espacio-2);
+    margin: 0;
+    line-height: 1.25;
+  }
+  .cabecera__pin {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: var(--fa-color-primario);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cabecera__ubicacion-texto {
+    display: flex;
+    flex-direction: column;
+  }
+  .cabecera__ubicacion-titulo {
+    font-size: var(--fa-texto-sm);
+    font-weight: 700;
+    color: var(--fa-color-texto);
+  }
+  .cabecera__ubicacion-nota {
+    font-size: 0.75rem;
+    color: var(--fa-color-texto-suave); /* 7:1 sobre blanco */
+  }
+  /* La franja verde sobra: su contenido ya está en la cabecera */
+  .franja {
+    display: none;
+  }
+}
+
+/* Menos movimiento: esta cabecera no usa animaciones, solo dejamos las transiciones del botón
+   explícitamente apagadas por si en el futuro se añade alguna. */
+@media (prefers-reduced-motion: reduce) {
+  .cabecera__menu,
+  .cabecera__menu-icono,
+  .bolsa,
+  .logo {
+    transition: none;
   }
 }
 </style>

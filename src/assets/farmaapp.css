@@ -42,7 +42,8 @@
   --fa-color-texto-pie-suave: #d3ecdc; /* texto secundario sobre el pie oscuro (~8:1) */
 
   /* Superficies y bordes */
-  --fa-fondo-pagina: #f4f6f5;
+  --fa-fondo-pagina: #f3f4f5;          /* gris muy claro: las tarjetas blancas "destacan" sobre él */
+  --fa-fondo-fila: #eef0f0;            /* filas grises de los filtros (cabeceras de cada filtro) */
   --fa-fondo-superficie: #ffffff;      /* tarjetas, cabecera */
   --fa-borde: #dfe5e2;                 /* decorativo (separadores, tarjetas) */
   --fa-borde-control: #7a8794;         /* inputs/botones: 3.7:1 sobre blanco (WCAG 1.4.11 pide 3:1) */
@@ -78,15 +79,35 @@
   --fa-sombra-tarjeta-hover: 0 8px 24px rgba(6, 50, 28, 0.16),
     0 2px 6px rgba(6, 50, 28, 0.08);
   --fa-sombra-cabecera: 0 2px 8px rgba(6, 50, 28, 0.12);
+  --fa-sombra-megamenu: 0 16px 32px rgba(6, 50, 28, 0.22), 0 2px 6px rgba(6, 50, 28, 0.12); /* panel del mega-menú */
+  --fa-fondo-overlay: rgba(4, 36, 20, 0.5); /* capa oscura detrás del mega-menú */
 
   /* Área táctil mínima recomendada (WCAG 2.5.5 / móviles) */
   --fa-tactil-min: 44px;
 
   /* Medidas de la maqueta */
-  --fa-ancho-max: 1320px;      /* ancho máximo del contenido en pantallas grandes */
-  --fa-ancho-filtros: 250px;   /* barra lateral de filtros en escritorio */
+  --fa-ancho-max: 1440px;      /* ancho máximo del contenido en pantallas grandes */
+  --fa-ancho-filtros: 260px;   /* barra lateral de filtros en escritorio (crece en pantallas anchas, ver abajo) */
   --fa-alto-franja: 2.5rem;    /* alto de la franja verde de ubicación (rem: crece con el zoom de texto) */
-  --fa-alto-cabecera: 4.5rem;  /* alto aprox. de la parte blanca pegajosa en escritorio */
+  --fa-alto-cabecera: 5rem;    /* alto aprox. de la parte blanca pegajosa en escritorio */
+
+  /* Naranja SOLO para el círculo del botón "Menú de Categorías". El icono que lleva dentro es
+     oscuro (#1f2933 sobre #f5a000 = ~7:1); un icono blanco NO llegaría ni a 2:1. */
+  --fa-color-naranja: #f5a000;
+  --fa-color-naranja-hover: #e69500;
+}
+
+/* La barra lateral de filtros se ensancha según hay sitio. Una variable CSS puede
+   redefinirse dentro de @media: todo lo que use var(--fa-ancho-filtros) se adapta solo. */
+@media (min-width: 1280px) {
+  :root {
+    --fa-ancho-filtros: 300px;
+  }
+}
+@media (min-width: 1360px) {
+  :root {
+    --fa-ancho-filtros: 360px;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -94,8 +115,9 @@
    Las variables CSS NO funcionan dentro de @media, así que se escriben a mano:
      640px  -> móvil grande / tablet pequeña (2 columnas de tarjetas)
      768px  -> tablet
-     1024px -> escritorio (3 columnas + filtros laterales)
-     1360px -> pantalla ancha (4 columnas)
+     1024px -> escritorio pequeño (menú de categorías con texto, 2 columnas + filtros laterales)
+     1280px -> escritorio (ubicación en la cabecera, 3 columnas de tarjetas)
+     1360px -> pantalla ancha (filtros laterales de 360px, como la maqueta)
    Enfoque mobile-first: los estilos base son para móvil y se amplían con
    @media (min-width: 640px) { ... }, etc. Revisado también a 320px.
    -------------------------------------------------------------------------- */

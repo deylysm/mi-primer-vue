@@ -16,7 +16,7 @@ import { useCarrito } from '@/composables/useCarrito.js'
 import { nombreCategoria } from '@/mocks/categorias.mock.js'
 import { formatearPrecio } from '@/utils/normalizar.js'
 import { describirStock } from '@/utils/stock.js'
-import ImagenCategoria from '@/components/comunes/ImagenCategoria.vue'
+import ImagenMedicamento from '@/components/comunes/ImagenMedicamento.vue'
 import ControlCantidad from '@/components/comunes/ControlCantidad.vue'
 import EstadoCarga from '@/components/busqueda/EstadoCarga.vue'
 import EstadoError from '@/components/busqueda/EstadoError.vue'
@@ -117,6 +117,7 @@ function agregarAlCarrito() {
       farmaciaNombre: oferta.farmacia.nombre,
       precio: oferta.precio,
       categoria: med.categoria,
+      imagen: med.imagen,
       stock: oferta.stock,
     },
     cantidad.value,
@@ -164,7 +165,12 @@ function volver() {
 
     <article v-else-if="medicamento" class="detalle__contenido">
       <div class="detalle__cabecera">
-        <ImagenCategoria :categoria="medicamento.categoria" tamano="lg" />
+        <ImagenMedicamento
+          :imagen="medicamento.imagen"
+          :categoria="medicamento.categoria"
+          :nombre="medicamento.nombre"
+          tamano="lg"
+        />
         <div class="detalle__datos">
           <h1 class="detalle__titulo">{{ medicamento.nombre }}</h1>
           <dl class="detalle__lista">
