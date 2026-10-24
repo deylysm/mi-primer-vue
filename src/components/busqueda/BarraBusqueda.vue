@@ -91,6 +91,27 @@ function enviar() {
   opacity: 1;
 }
 
+/* La "x" para borrar que Chrome/Edge/Safari añaden solo a los <input type="search"> es azul y
+   no combina con la marca. La repintamos: quitamos su aspecto nativo (appearance: none) y le
+   ponemos de "máscara" un icono x en SVG; el color lo da background-color, así usamos el
+   verde de marca (#0b7a38, 5.4:1 sobre blanco). Sigue siendo la función nativa del navegador:
+   no hace falta JavaScript. Firefox no la dibuja, así que no hay nada que cambiar allí. */
+.barra__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin: 0 var(--fa-espacio-1) 0 var(--fa-espacio-2);
+  background-color: var(--fa-color-primario);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.barra__input::-webkit-search-cancel-button:hover {
+  background-color: var(--fa-color-primario-hover);
+}
+
 /* Foco: el aro azul se dibuja alrededor de TODA la píldora, no del input interior.
    :has() = "el contenedor que tiene dentro un input con foco". Solo se quita el aro
    propio del input en navegadores que entienden :has() (@supports): así nunca nos

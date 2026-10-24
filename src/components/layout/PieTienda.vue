@@ -1,7 +1,7 @@
 <!--
   PieTienda.vue  (src/components/layout/)
   Qué es: el pie de página oscuro (verde muy oscuro) con el aviso legal.
-  Quién lo usa: src/views/BuscadorView.vue.
+  Quién lo usa: src/App.vue (aparece en todas las páginas).
   Es presentación pura: sin props, sin eventos, sin lógica.
 -->
 <template>

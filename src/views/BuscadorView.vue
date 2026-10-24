@@ -1,16 +1,11 @@
 <script setup>
-// Vista principal: une la lógica (composable) con los componentes de búsqueda.
-
-// Estilos globales de FarmaApp (tokens --fa-*). Ruta con alias @ -> src/.
-// Vite los inyecta en la página al importarlos.
-import '@/assets/farmaapp.css'
+// Vista del buscador (ruta "/"): une la lógica (composable) con los componentes de búsqueda.
+// La cabecera, la barra de búsqueda y el pie los pone App.vue en todas las páginas;
+// esta vista solo dibuja el banner y la zona de filtros + resultados.
 
 // Archivos locales de FarmaApp (alias @ -> src/).
-import { useBusquedaMedicamentos, MIN_CARACTERES } from '@/composables/useBusquedaMedicamentos.js'
-// Componentes NUEVOS de diseño (carpeta layout): cabecera de tienda y pie de página.
-import CabeceraTienda from '@/components/layout/CabeceraTienda.vue'
-import PieTienda from '@/components/layout/PieTienda.vue'
-import BarraBusqueda from '@/components/busqueda/BarraBusqueda.vue'
+import { useBusquedaMedicamentos } from '@/composables/useBusquedaMedicamentos.js'
+import { nombreCategoria } from '@/mocks/categorias.mock.js'
 import FiltrosBusqueda from '@/components/busqueda/FiltrosBusqueda.vue'
 import ListaResultados from '@/components/busqueda/ListaResultados.vue'
 import EstadoCarga from '@/components/busqueda/EstadoCarga.vue'
@@ -28,79 +23,74 @@ const {
   error,
   estado,
   actualizando,
-  faltanCaracteres,
-  buscarAhora,
   reintentar,
   limpiarFiltros,
+  quitarCategoria,
 } = useBusquedaMedicamentos()
 </script>
 
 <template>
-  <div class="fa-app">
-    <a class="fa-saltar-contenido" href="#contenido">Saltar al contenido</a>
+  <!-- Esta vista tiene DOS elementos raíz (banner + main): Vue 3 lo permite (fragmento).
+       Los dos hijos directos de .fa-app (en App.vue) son los que reparte el flex del layout. -->
 
-    <!-- CabeceraTienda dibuja logo, iconos decorativos y franja verde.
-         Lo que ponemos entre sus etiquetas (la barra de búsqueda) entra por su <slot />. -->
-    <CabeceraTienda>
-      <BarraBusqueda
-        v-model="termino"
-        :faltan-caracteres="faltanCaracteres"
-        :min-caracteres="MIN_CARACTERES"
-        @buscar="buscarAhora"
-      />
-    </CabeceraTienda>
+  <!-- Banner promocional hecho solo con CSS (degradado verde + círculos), sin imágenes. -->
+  <section class="banner" aria-labelledby="titulo-banner">
+    <div class="banner__interior fa-contenedor">
+      <h1 id="titulo-banner" class="banner__titulo">Encuentra tu medicamento al mejor precio</h1>
+      <p class="banner__texto">Compara precios y disponibilidad en farmacias de Lima.</p>
+    </div>
+  </section>
 
-    <!-- Banner promocional hecho solo con CSS (degradado verde + círculos), sin imágenes. -->
-    <section class="banner" aria-labelledby="titulo-banner">
-      <div class="banner__interior fa-contenedor">
-        <h1 id="titulo-banner" class="banner__titulo">Encuentra tu medicamento al mejor precio</h1>
-        <p class="banner__texto">Compara precios y disponibilidad en farmacias de Lima.</p>
-      </div>
-    </section>
+  <!-- tabindex="-1": permite que el enlace "saltar" le pase el foco. -->
+  <main id="contenido" class="principal fa-contenedor" tabindex="-1">
+    <FiltrosBusqueda
+      class="principal__filtros"
+      :filtros="filtros"
+      :farmacias="farmacias"
+      @limpiar-filtros="limpiarFiltros"
+    />
 
-    <!-- tabindex="-1": permite que el enlace "saltar" le pase el foco. -->
-    <main id="contenido" class="principal fa-contenedor" tabindex="-1">
-      <FiltrosBusqueda
-        class="principal__filtros"
-        :filtros="filtros"
-        :farmacias="farmacias"
-        @limpiar-filtros="limpiarFiltros"
-      />
+    <section class="principal__resultados" aria-labelledby="titulo-resultados">
+      <h2 id="titulo-resultados" class="resultados__titulo">Resultados</h2>
 
-      <section class="principal__resultados" aria-labelledby="titulo-resultados">
-        <h2 id="titulo-resultados" class="resultados__titulo">Resultados</h2>
-
-        <!-- Los componentes de estado ya traen su role/aria-live: no lo repetimos aquí.
-             Al recargar con resultados visibles, el bloque se atenúa (clase modificadora)
-             en vez de desmontarse: así la altura no cambia y no hay saltos. -->
-        <div
-          class="principal__estados"
-          :class="{ 'principal__estados--actualizando': actualizando }"
-          :aria-busy="actualizando"
-        >
-          <p v-if="estado === 'inicial'" class="bienvenida">
-            Escribe el nombre de un medicamento o principio activo para empezar.
-          </p>
-          <EstadoCarga v-else-if="estado === 'cargando'" />
-          <EstadoError v-else-if="estado === 'error'" :mensaje="error" @reintentar="reintentar" />
-          <EstadoVacio
-            v-else-if="estado === 'sin-resultados'"
-            :termino="terminoBuscado"
-            @limpiar-filtros="limpiarFiltros"
-          />
-          <ListaResultados v-else-if="estado === 'resultados'" :resultados="resultados" />
-        </div>
-        <!-- Indicador solo visual: el aviso accesible lo da aria-busy del contenedor
-             (un role="status" creado ya con texto no se anuncia de forma fiable).
-             Posicionado en absoluto: no ocupa espacio, así no altera la altura. -->
-        <span v-if="actualizando" class="resultados__actualizando">
-          Actualizando…
+      <!-- Categoría elegida desde el menú: se muestra como "chip" con botón para quitarla. -->
+      <p v-if="filtros.categoria" class="resultados__categoria">
+        <span class="resultados__categoria-texto">
+          Categoría: <strong>{{ nombreCategoria(filtros.categoria) }}</strong>
         </span>
-      </section>
-    </main>
+        <button class="resultados__categoria-quitar" type="button" @click="quitarCategoria">
+          Quitar<span class="fa-visualmente-oculto"> categoría {{ nombreCategoria(filtros.categoria) }}</span>
+        </button>
+      </p>
 
-    <PieTienda />
-  </div>
+      <!-- Los componentes de estado ya traen su role/aria-live: no lo repetimos aquí.
+           Al recargar con resultados visibles, el bloque se atenúa (clase modificadora)
+           en vez de desmontarse: así la altura no cambia y no hay saltos. -->
+      <div
+        class="principal__estados"
+        :class="{ 'principal__estados--actualizando': actualizando }"
+        :aria-busy="actualizando"
+      >
+        <p v-if="estado === 'inicial'" class="bienvenida">
+          Escribe el nombre de un medicamento o principio activo para empezar.
+        </p>
+        <EstadoCarga v-else-if="estado === 'cargando'" />
+        <EstadoError v-else-if="estado === 'error'" :mensaje="error" @reintentar="reintentar" />
+        <EstadoVacio
+          v-else-if="estado === 'sin-resultados'"
+          :termino="terminoBuscado"
+          @limpiar-filtros="limpiarFiltros"
+        />
+        <ListaResultados v-else-if="estado === 'resultados'" :resultados="resultados" />
+      </div>
+      <!-- Indicador solo visual: el aviso accesible lo da aria-busy del contenedor
+           (un role="status" creado ya con texto no se anuncia de forma fiable).
+           Posicionado en absoluto: no ocupa espacio, así no altera la altura. -->
+      <span v-if="actualizando" class="resultados__actualizando">
+        Actualizando…
+      </span>
+    </section>
+  </main>
 </template>
 
 <style scoped>
@@ -207,6 +197,45 @@ const {
   margin: 0 0 var(--fa-espacio-3);
   font-size: var(--fa-texto-lg);
   color: var(--fa-color-primario-oscuro);
+}
+
+/* Chip de la categoría activa: píldora verde suave con el botón "Quitar" */
+/* Texto y "Quitar" forman UNA sola píldora (el chip), con el botón al final separado por una línea.
+   #064e24 sobre #e6f6ec = 8,9:1. width:fit-content = el chip mide lo que mide su contenido. */
+.resultados__categoria {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 var(--fa-espacio-3);
+  padding-left: var(--fa-espacio-3);
+  background: var(--fa-color-marca-suave);
+  border: 1px solid var(--fa-color-primario);
+  border-radius: var(--fa-radio-pildora);
+}
+.resultados__categoria-texto {
+  min-width: 0;
+  padding-block: var(--fa-espacio-1);
+  color: var(--fa-color-primario-oscuro);
+  overflow-wrap: anywhere;
+}
+.resultados__categoria-quitar {
+  flex-shrink: 0;
+  min-height: var(--fa-tactil-min);
+  margin-left: var(--fa-espacio-2);
+  padding: 0 var(--fa-espacio-3);
+  font: inherit;
+  font-weight: 700;
+  color: var(--fa-color-primario-oscuro);
+  text-decoration: underline;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--fa-color-primario);
+  border-radius: 0 var(--fa-radio-pildora) var(--fa-radio-pildora) 0;
+  cursor: pointer;
+}
+.resultados__categoria-quitar:hover {
+  background: #cdebd8; /* un tono más oscuro que el fondo del chip */
 }
 
 /* Mensaje de bienvenida: tarjeta verde suave */

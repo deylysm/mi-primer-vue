@@ -20,7 +20,7 @@ export async function listarFarmacias() {
 /**
  * Busca medicamentos y devuelve UNA entrada por oferta (medicamento x farmacia).
  * Filtros en AND: término, farmacias (OR entre ellas; vacío = todas),
- * soloConStock, precioMax (inclusivo; null = sin límite).
+ * soloConStock, precioMax (inclusivo; null = sin límite), categoria ('' = todas).
  * orden: 'precio-asc' (defecto) | 'precio-desc' | 'nombre'.
  *
  * PRUEBA MANUAL DE ERROR: si el término normalizado es exactamente "error",
@@ -32,6 +32,7 @@ export async function buscarMedicamentos({
   soloConStock = false,
   precioMax = null,
   orden = 'precio-asc',
+  categoria = '', // id de categoría; '' = todas
 } = {}) {
   await esperar(RETRASO_MS)
 
@@ -43,6 +44,7 @@ export async function buscarMedicamentos({
   // Aplana: cada medicamento x cada farmacia en su inventario.
   const ofertas = []
   for (const med of medicamentos) {
+    if (categoria && med.categoria !== categoria) continue
     const coincide =
       normalizar(med.nombre).includes(buscado) ||
       normalizar(med.principioActivo).includes(buscado)
@@ -58,6 +60,7 @@ export async function buscarMedicamentos({
         principioActivo: med.principioActivo,
         presentacion: med.presentacion,
         requiereReceta: med.requiereReceta,
+        categoria: med.categoria,
         farmacia: { id: farmacia.id, nombre: farmacia.nombre, direccion: farmacia.direccion },
         precio: item.precio,
         stock: item.stock,
@@ -79,4 +82,44 @@ export async function buscarMedicamentos({
   else resultado.sort((a, b) => a.precio - b.precio || porNombre(a, b))
 
   return resultado
+}
+
+/**
+ * Devuelve UN medicamento con todas sus ofertas (una por farmacia, de más barata a más cara),
+ * o `null` si el id no existe. El id llega como texto desde la URL, por eso se convierte a número.
+ *
+ * PRUEBA MANUAL DE ERROR: si el id es exactamente "error" (/medicamento/error),
+ * lanza una excepción para ver el estado de error.
+ */
+export async function obtenerMedicamentoPorId(id) {
+  await esperar(RETRASO_MS)
+
+  if (String(id) === 'error') throw new Error('Error simulado para pruebas')
+
+  const numero = Number(id)
+  const med = medicamentos.find((m) => m.id === numero)
+  if (!med) return null
+
+  const farmaciasPorId = new Map(farmacias.map((f) => [f.id, f]))
+  const ofertas = med.inventario
+    .filter((item) => farmaciasPorId.has(item.farmaciaId))
+    .map((item) => {
+      const f = farmaciasPorId.get(item.farmaciaId)
+      return {
+        farmacia: { id: f.id, nombre: f.nombre, direccion: f.direccion },
+        precio: item.precio,
+        stock: item.stock,
+      }
+    })
+    .sort((a, b) => a.precio - b.precio)
+
+  return {
+    id: med.id,
+    nombre: med.nombre,
+    principioActivo: med.principioActivo,
+    presentacion: med.presentacion,
+    requiereReceta: med.requiereReceta,
+    categoria: med.categoria,
+    ofertas,
+  }
 }

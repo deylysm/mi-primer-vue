@@ -271,3 +271,71 @@ body:has(.fa-app) {
 .fa-saltar-contenido:hover {
   background: var(--fa-color-primario-hover);
 }
+
+/* --------------------------------------------------------------------------
+   6. Botones reutilizables (.fa-boton)
+   Sirven tanto para <button> como para <RouterLink> (que dibuja un <a>).
+   Se escriben como ".fa-app .fa-boton" (especificidad 0,2,0) para ganar al estilo
+   global "a" / "a:hover" de main.css (padding, color y fondo verde al pasar el ratón).
+   Uso:  <button class="fa-boton">  |  <button class="fa-boton fa-boton--secundario">
+   Lo usan DetalleMedicamentoView.vue y CarritoView.vue.
+   -------------------------------------------------------------------------- */
+.fa-app .fa-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fa-espacio-2);
+  min-height: var(--fa-tactil-min);
+  padding: 0 var(--fa-espacio-4);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--fa-color-texto-sobre-verde); /* blanco sobre #0b7a38 = 5,4:1 */
+  background: var(--fa-color-primario);
+  border: 2px solid var(--fa-color-primario);
+  border-radius: var(--fa-radio-pildora);
+  box-shadow: 0 2px 6px rgba(6, 78, 36, 0.25); /* relieve suave: indica que es la acción principal */
+  text-decoration: none;
+  cursor: pointer;
+  transition: none;
+}
+.fa-app .fa-boton:hover {
+  color: var(--fa-color-texto-sobre-verde);
+  background: var(--fa-color-primario-hover);
+  border-color: var(--fa-color-primario-hover);
+}
+/* :active = mientras se mantiene pulsado: color aún más oscuro y sin sombra (se "hunde") */
+.fa-app .fa-boton:active {
+  background: var(--fa-color-primario-oscuro);
+  border-color: var(--fa-color-primario-oscuro);
+  box-shadow: none;
+}
+/* Variante "secundaria": solo contorno, sin sombra (menos protagonismo que la principal) */
+.fa-app .fa-boton--secundario {
+  color: var(--fa-color-primario);
+  background: transparent;
+  box-shadow: none;
+}
+.fa-app .fa-boton--secundario:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+  border-color: var(--fa-color-primario);
+}
+.fa-app .fa-boton--secundario:active {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+  border-color: var(--fa-color-primario-oscuro);
+}
+/* Desactivado: gris, borde discontinuo, sin puntero, sin sombra y sin efecto al pasar el ratón.
+   #52606d sobre #f4f6f5 = 6,0:1: se lee bien aunque no se pueda pulsar. */
+.fa-app .fa-boton:disabled,
+.fa-app .fa-boton:disabled:hover,
+.fa-app .fa-boton[aria-disabled='true'] {
+  color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-pagina);
+  border-color: var(--fa-borde-control);
+  border-style: dashed;
+  box-shadow: none;
+  cursor: not-allowed;
+}
