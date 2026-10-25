@@ -1,7 +1,7 @@
 <!--
   CabeceraTienda.vue  (src/components/layout/)
   Qué es: la cabecera de la "tienda": barra blanca pegajosa (logotipo, menú, "Identifícate",
-  bolsa del carrito y buscador) + franja verde de ubicación.
+  cuenta, bolsa del carrito y buscador) + franja verde de ubicación.
   Quién la usa: src/App.vue (aparece en todas las páginas).
   Slot: <slot /> es un "hueco". El padre escribe dentro de <CabeceraTienda>...</CabeceraTienda>
   y ese contenido aparece aquí. Así el buscador (<BarraBusqueda>) y su lógica viven en App.vue,
@@ -13,7 +13,9 @@
       MenuEscritorio.vue (y las rayas pasan a ser una X); en móvil/tablet el cajón MenuLateral.vue.
       Solo UNO de los dos menús está montado a la vez (v-if / v-else según el ancho de pantalla).
     - Logotipo: enlace (<RouterLink>) al inicio.
-    - "Identifícate": botón desactivado (aria-disabled, title "Próximamente"); aún no hay login.
+    - Cuenta (.adm-cuenta, estilos en admin.css): sin sesión, enlace "Iniciar sesión" a /login; con
+      sesión, enlace "Hola, {usuario} / Administrar" a /admin y botón "Cerrar sesión" (desde 640px).
+      El estado sale de useSesion.js.
     - Bolsa: enlace a /carrito con el contador real de productos (viene de useCarrito.js).
 
   Este componente tiene DOS elementos raíz (header + div): Vue 3 lo permite (fragmento).
@@ -28,8 +30,10 @@ import { RouterLink, useRoute } from 'vue-router'
 import MenuLateral from './MenuLateral.vue'
 import MenuEscritorio from './MenuEscritorio.vue'
 import { useCarrito } from '@/composables/useCarrito.js'
+import { useSesion } from '@/composables/useSesion.js' // estado de la sesión (usuario, haySesion, salir)
 
 const route = useRoute()
+const { usuario, haySesion, salir } = useSesion()
 const { totalProductos } = useCarrito()
 
 const menuAbierto = ref(false) // ¿está desplegado el menú (el de escritorio o el lateral)?
@@ -134,20 +138,35 @@ watch(() => route.fullPath, () => {
 
       <!-- Zona derecha: Identifícate (aún no disponible) + bolsa del carrito -->
       <div class="cabecera__acciones">
-        <!-- aria-disabled (no "disabled"): sigue siendo enfocable y el lector lo anuncia como no disponible.
-             El clic no hace nada (.prevent). El title muestra "Próximamente" al pasar el ratón. -->
-        <button class="acceso" type="button" aria-disabled="true" title="Próximamente" @click.prevent>
-          <span class="acceso__texto">
-            <!-- aria-hidden: "Bienvenid@" es solo un saludo decorativo (un lector diría "arroba") -->
-            <span class="acceso__saludo" aria-hidden="true">Bienvenid@</span>
-            <span class="acceso__accion">Iniciar sesión</span>
-          </span>
-          <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
-          </svg>
-          <span class="fa-visualmente-oculto">(próximamente)</span>
-        </button>
+        <!-- Cuenta. Las clases adm-cuenta* están en src/assets/admin.css (globales, no scoped).
+             Sin sesión: enlace a /login. Con sesión: enlace al panel /admin + botón "Cerrar sesión"
+             (el botón solo se ve desde 640px; en móvil está en el menú lateral y en /admin). -->
+        <div v-if="!haySesion" class="adm-cuenta">
+          <RouterLink class="adm-cuenta__enlace" to="/login">
+            <svg class="adm-cuenta__icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+            </svg>
+            <span class="adm-cuenta__texto">
+              <!-- aria-hidden: "Bienvenid@" es solo un saludo decorativo (un lector diría "arroba") -->
+              <span class="adm-cuenta__saludo" aria-hidden="true">Bienvenid@</span>
+              <span class="adm-cuenta__accion">Iniciar sesión</span>
+            </span>
+          </RouterLink>
+        </div>
+        <div v-else class="adm-cuenta">
+          <RouterLink class="adm-cuenta__enlace" to="/admin">
+            <svg class="adm-cuenta__icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+            </svg>
+            <span class="adm-cuenta__texto">
+              <span class="adm-cuenta__saludo">Hola, {{ usuario }}</span>
+              <span class="adm-cuenta__accion">Administrar</span>
+            </span>
+          </RouterLink>
+          <button type="button" class="adm-cuenta__salir" @click="salir">Cerrar sesión</button>
+        </div>
         <RouterLink class="bolsa" :to="{ name: 'carrito' }" :aria-label="etiquetaCarrito">
           <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M5 8h14l-1 12H6L5 8z" />
@@ -380,53 +399,7 @@ watch(() => route.fullPath, () => {
   display: flex;
   align-items: center;
 }
-.acceso {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--fa-tactil-min);
-  height: var(--fa-tactil-min);
-  gap: var(--fa-espacio-2);
-  padding: 0 var(--fa-espacio-2);
-  font: inherit;
-  font-size: var(--fa-texto-sm);
-  font-weight: 600;
-  text-align: left;
-  line-height: 1.2;
-  color: var(--fa-color-texto-suave); /* atenuado: #52606d sobre blanco = 7:1 (sigue siendo legible) */
-  background: transparent;
-  border: 0;
-  border-radius: var(--fa-radio-sm);
-  cursor: not-allowed; /* el puntero "prohibido" avisa de que aún no funciona */
-  transition: none;
-}
-.acceso:hover {
-  background: transparent; /* no reacciona: no hace nada todavía */
-}
-/* El icono de usuario va ANTES del texto aunque en el HTML esté después (order: -1) y en verde. */
-.acceso .icono {
-  order: -1;
-  width: 28px;
-  height: 28px;
-  color: var(--fa-color-primario);
-}
-.acceso__saludo {
-  display: block;
-  font-weight: 400;
-}
-.acceso__accion {
-  display: block;
-  font-weight: 700;
-  color: var(--fa-color-texto-suave);
-}
-/* Un poco de aire entre "Identifícate" y la bolsa */
-.acceso + .bolsa {
-  margin-left: var(--fa-espacio-1);
-}
-/* En móvil solo el icono; el texto "Identifícate" aparece desde 640px */
-.acceso__texto {
-  display: none;
-}
+/* El bloque de cuenta (.adm-cuenta*) se estiliza en src/assets/admin.css. */
 
 /* Globito rojo con contador. Blanco sobre #b3261e = 6.5:1. El anillo blanco (box-shadow) lo separa
    del dibujo de la bolsa y lo hace destacar. */
@@ -499,18 +472,12 @@ watch(() => route.fullPath, () => {
     width: 24px;
     height: 24px;
   }
-  .acceso + .bolsa {
-    margin-left: 0;
-  }
 }
 
 /* ---- Tablet pequeña (>= 640px) ---- */
 @media (min-width: 640px) {
   .logo {
     font-size: 1.375rem;
-  }
-  .acceso__texto {
-    display: block;
   }
   .franja__nota {
     display: block;

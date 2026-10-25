@@ -5,15 +5,19 @@
 // Estilos globales de FarmaApp (tokens --fa-*). Ruta con alias @ -> src/.
 // Vite los inyecta en la página al importarlos.
 import '@/assets/farmaapp.css'
+// Estilos de login, panel de administración, avisos y cuenta de la cabecera (alias @ -> src/).
+import '@/assets/admin.css'
 
 // 'vue' y 'vue-router' son paquetes instalados en node_modules.
-import { watch } from 'vue'
+import { watch, onMounted } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 // Archivos locales de FarmaApp (alias @ -> src/).
 import { useBusquedaMedicamentos, MIN_CARACTERES } from '@/composables/useBusquedaMedicamentos.js'
 import CabeceraTienda from '@/components/layout/CabeceraTienda.vue'
 import PieTienda from '@/components/layout/PieTienda.vue'
 import BarraBusqueda from '@/components/busqueda/BarraBusqueda.vue'
+import AvisosToast from '@/components/admin/AvisosToast.vue' // avisos temporales ("Cambios guardados.")
+import { haySesion, comprobarSesion } from '@/composables/useSesion.js' // estado de la sesión
 
 // El término de búsqueda vive en el composable (estado compartido): la barra de la cabecera lo
 // escribe y la vista del buscador lo lee, aunque estén en archivos distintos.
@@ -37,6 +41,12 @@ function alBuscar() {
 watch(termino, (nuevo) => {
   if (nuevo.trim() !== '') irAInicio()
 })
+
+// Si al abrir la página había un token guardado (sessionStorage), se comprueba en segundo plano
+// que sigue vigente; si caducó, la sesión se cierra y la cabecera deja de mostrar "Hola, ...".
+onMounted(() => {
+  if (haySesion.value) comprobarSesion()
+})
 </script>
 
 <template>
@@ -56,6 +66,9 @@ watch(termino, (nuevo) => {
 
     <!-- Aquí aparece la vista de la ruta actual (buscador, detalle o carrito). -->
     <RouterView />
+
+    <!-- Avisos flotantes (toasts): viven aquí para verse en cualquier página -->
+    <AvisosToast />
 
     <PieTienda />
   </div>

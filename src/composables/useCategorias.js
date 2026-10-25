@@ -34,7 +34,12 @@ function nombreCategoria(id) {
   return categorias.value.find((c) => c.id === id)?.nombre ?? ''
 }
 
+/** Vuelve a pedir las categorías (botón "Reintentar"). Si ya están cargadas o cargándose, no hace nada. */
+function reintentar() {
+  return cargar()
+}
+
 export function useCategorias() {
   cargar() // la primera vez pide los datos; si falló antes, reintenta
-  return { categorias, cargando, error, nombreCategoria }
+  return { categorias, cargando, error, nombreCategoria, reintentar }
 }

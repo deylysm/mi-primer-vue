@@ -2,7 +2,7 @@
   MenuLateral.vue  (src/components/layout/)
   Qué es: el menú desplegable (cajón lateral) que se abre con el botón hamburguesa naranja en
   móvil y tablet (< 1024px; en escritorio se usa el mega-menú MenuEscritorio.vue). Contiene Inicio,
-  Categorías, Carrito e "Identifícate" (próximamente).
+  Categorías, Carrito y la cuenta ("Iniciar sesión", o "Administrar" y "Cerrar sesión" con sesión).
   Cada categoría con subcategorías es un ACORDEÓN: al tocarla se despliega su sublista
   ("Ver todo en ..." + subcategorías) y solo puede haber una abierta a la vez.
   Quién lo usa: CabeceraTienda.vue (le pasa `abierto` y escucha `cerrar`).
@@ -26,6 +26,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useCategorias } from '@/composables/useCategorias.js' // categorías desde la API (estado compartido)
 import { useBusquedaMedicamentos } from '@/composables/useBusquedaMedicamentos.js'
 import { useCarrito } from '@/composables/useCarrito.js'
+import { useSesion } from '@/composables/useSesion.js' // sesión: haySesion y salir()
 // Componente local (alias @ -> src/): el icono lineal de cada categoría.
 import IconoCategoria from '@/components/comunes/IconoCategoria.vue'
 
@@ -39,6 +40,13 @@ const router = useRouter()
 const { seleccionarCategoria } = useBusquedaMedicamentos()
 const { categorias } = useCategorias() // ref ([] mientras carga); en la plantilla se usa sin .value
 const { totalProductos } = useCarrito()
+const { haySesion, salir } = useSesion() // estado de la sesión y función para cerrarla
+
+// "Cerrar sesión": cierra el cajón y después cierra la sesión (salir() va al inicio y avisa).
+function cerrarSesionDesdeMenu() {
+  emit('cerrar')
+  salir()
+}
 
 const dialogo = ref(null) // referencia al elemento <dialog> (template ref)
 // Acordeón: id de la categoría desplegada (null = ninguna). Un solo valor => solo una abierta a la vez.
@@ -203,19 +211,42 @@ async function alternarAcordeon(idCategoria, evento) {
         </ul>
 
         <ul class="menu__lista menu__lista--aparte">
-          <li>
-            <!-- Aún no existe el inicio de sesión: botón visible pero desactivado, con la razón a la vista. -->
-            <button class="menu__enlace menu__enlace--desactivado" type="button" disabled>
+          <!-- Sin sesión: "Iniciar sesión" (lleva a /login). Con sesión: "Administrar" (/admin) y
+               "Cerrar sesión". En los dos casos el menú se cierra al pulsar. -->
+          <li v-if="!haySesion">
+            <RouterLink class="menu__enlace" to="/login" @click="emit('cerrar')">
               <span class="menu__icono menu__icono--simple" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
                   <circle cx="12" cy="8" r="4" />
                   <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
                 </svg>
               </span>
-              <span class="menu__texto">Identifícate</span>
-              <span class="menu__etiqueta">Próximamente</span>
-            </button>
+              <span class="menu__texto">Iniciar sesión</span>
+            </RouterLink>
           </li>
+          <template v-else>
+            <li>
+              <RouterLink class="menu__enlace" to="/admin" @click="emit('cerrar')">
+                <span class="menu__icono menu__icono--simple" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+                  </svg>
+                </span>
+                <span class="menu__texto">Administrar</span>
+              </RouterLink>
+            </li>
+            <li>
+              <button class="menu__enlace" type="button" @click="cerrarSesionDesdeMenu">
+                <span class="menu__icono menu__icono--simple" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                  </svg>
+                </span>
+                <span class="menu__texto">Cerrar sesión</span>
+              </button>
+            </li>
+          </template>
         </ul>
       </nav>
     </div>
@@ -413,7 +444,7 @@ async function alternarAcordeon(idCategoria, evento) {
   box-shadow: inset 4px 0 0 var(--fa-color-primario);
 }
 
-/* Caja del icono (40x40): en las categorías contiene la ilustración; en Inicio/Carrito/Identifícate un
+/* Caja del icono (40x40): en las categorías contiene la ilustración; en Inicio/Carrito/cuenta un
    icono lineal verde sobre fondo suave. */
 .menu__icono {
   display: inline-flex;
@@ -526,25 +557,6 @@ async function alternarAcordeon(idCategoria, evento) {
   overflow-wrap: anywhere;
 }
 
-.menu__enlace--desactivado,
-.menu__enlace--desactivado:hover {
-  color: var(--fa-color-texto-suave); /* #52606d sobre blanco = 6,9:1 */
-  background: transparent;
-  cursor: not-allowed;
-}
-.menu__enlace--desactivado .menu__icono--simple {
-  color: var(--fa-color-texto-suave);
-  background: var(--fa-fondo-pagina);
-}
-.menu__etiqueta {
-  padding: 2px var(--fa-espacio-2);
-  font-size: var(--fa-texto-sm);
-  font-weight: 600;
-  color: var(--fa-color-texto-suave);
-  background: var(--fa-fondo-pagina);
-  border: 1px solid var(--fa-borde);
-  border-radius: var(--fa-radio-pildora);
-}
 /* Contador del carrito: blanco sobre rojo #b3261e = 6,5:1 */
 .menu__contador {
   min-width: 24px;

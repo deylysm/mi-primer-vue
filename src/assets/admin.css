@@ -1,0 +1,1347 @@
+/* ==========================================================================
+   admin.css - Estilos del login y del panel de administración de FarmaApp
+   Qué es: CSS GLOBAL (no "scoped") con todas las clases de las pantallas de administración.
+   Todas las clases llevan el prefijo `adm-` para no chocar con las de la tienda (`fa-`, `tarjeta`...).
+   Quién lo importa: src/App.vue (junto a farmaapp.css), porque la cabecera (adm-cuenta) y los
+   avisos (adm-avisos) se ven en TODAS las páginas, no solo en /admin.
+       import '@/assets/admin.css'   // el alias @ apunta a src/
+
+   NO inventa colores: usa las variables --fa-* que ya define src/assets/farmaapp.css
+   (por eso admin.css debe cargarse DESPUÉS de farmaapp.css).
+
+   Por qué casi todo empieza por ".fa-app": main.css da estilo global a las etiquetas "a" y
+   "a:hover" (padding, fondo verde). Un selector ".fa-app .adm-algo" (especificidad 0,2,0)
+   gana a "a:hover" (0,1,1) sin necesidad de !important.
+
+   Enfoque mobile-first: lo de abajo sin @media es para móvil; los @media (min-width: ...)
+   amplían para tablet (640 / 768) y escritorio (1024).
+   Contrastes WCAG medidos (mínimo AA: 4.5:1 en texto normal, 3:1 en bordes de controles):
+     texto #1f2933 sobre blanco ............... 14:1      texto suave #52606d sobre blanco ... 7:1
+     error #b3261e sobre blanco ............... 6,5:1     error #b3261e sobre #fde8e6 ........ 5,6:1
+     blanco sobre error #b3261e ............... 6,5:1     blanco sobre verde #0b7a38 ......... 5,4:1
+     blanco sobre verde oscuro #064e24 ........ 9,9:1     ok #146c2e sobre #e3f4e8 ........... 5,7:1
+     borde de campo #7a8794 sobre blanco ...... 3,7:1 (pide 3:1)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. Medidas propias del panel (solo ANCHOS; los colores vienen de farmaapp.css)
+   -------------------------------------------------------------------------- */
+:root {
+  --adm-ancho-login: 440px;   /* tarjeta del login */
+  --adm-ancho-form: 920px;    /* formularios de medicamento / farmacia */
+  --adm-campo-alto: 48px;     /* alto de inputs y selects (>= 44px táctiles) */
+}
+
+/* --------------------------------------------------------------------------
+   1. Páginas: contenedor <main> y cabecera de la página de admin
+   -------------------------------------------------------------------------- */
+/* flex:1 empuja el pie de página hacia abajo cuando hay poco contenido (el .fa-app es una columna flex) */
+.fa-app .adm-pagina {
+  flex: 1;
+  padding-block: var(--fa-espacio-4) var(--fa-espacio-5);
+}
+.fa-app .adm-pagina__cabecera {
+  display: flex;
+  flex-wrap: wrap;            /* en móvil el botón "Cerrar sesión" baja a otra línea si no cabe */
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fa-espacio-3);
+  margin-bottom: var(--fa-espacio-4);
+}
+.fa-app .adm-pagina__titulo {
+  margin: 0;
+  font-size: var(--fa-texto-xl);
+  color: var(--fa-color-primario-oscuro);   /* 9,9:1 sobre el fondo gris claro */
+}
+.fa-app .adm-pagina__sesion {
+  margin: var(--fa-espacio-1) 0 0;
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave);
+  overflow-wrap: anywhere;
+}
+@media (min-width: 768px) {
+  .fa-app .adm-pagina__titulo {
+    font-size: var(--fa-texto-2xl);
+  }
+}
+
+/* Enlace/botón "← Volver a la lista": objetivo táctil de 44px */
+.fa-app .adm-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fa-espacio-2);
+  min-height: var(--fa-tactil-min);
+  padding: 0 var(--fa-espacio-2);
+  margin-bottom: var(--fa-espacio-2);
+  font: inherit;
+  font-weight: 600;
+  color: var(--fa-color-primario);          /* 5,4:1 sobre blanco y sobre el gris de la página */
+  background: transparent;
+  border: 0;
+  border-radius: var(--fa-radio-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: none;
+}
+.fa-app .adm-volver:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+  text-decoration: underline;
+}
+.fa-app .adm-volver svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --------------------------------------------------------------------------
+   2. Botones: extensiones de .fa-boton (definido en farmaapp.css)
+   Se usan JUNTO a fa-boton:  <button class="fa-boton adm-boton--peligro adm-boton--compacto">
+   Triple clase en el selector para ganar a ".fa-app .fa-boton:hover" (0,3,0) en la cascada.
+   :not(:disabled) deja que el estilo de "desactivado" de fa-boton siga mandando.
+   -------------------------------------------------------------------------- */
+/* Peligro (contorno rojo): acciones destructivas en la tabla ("Borrar").
+   #b3261e sobre blanco = 6,5:1 */
+.fa-app .fa-boton.adm-boton--peligro:not(:disabled) {
+  color: var(--fa-color-error);
+  background: var(--fa-fondo-superficie);
+  border-color: var(--fa-color-error);
+  box-shadow: none;
+}
+.fa-app .fa-boton.adm-boton--peligro:hover:not(:disabled) {
+  color: var(--fa-color-error);
+  background: var(--fa-fondo-error);        /* #b3261e sobre #fde8e6 = 5,6:1 */
+  border-color: var(--fa-color-error);
+}
+.fa-app .fa-boton.adm-boton--peligro:active:not(:disabled) {
+  background: #f9d3cf;
+}
+/* Peligro sólido (relleno rojo): el botón final "Sí, borrar" del diálogo. Blanco sobre #b3261e = 6,5:1 */
+.fa-app .fa-boton.adm-boton--peligro-solido:not(:disabled) {
+  color: #ffffff;
+  background: var(--fa-color-error);
+  border-color: var(--fa-color-error);
+  box-shadow: none;
+}
+.fa-app .fa-boton.adm-boton--peligro-solido:hover:not(:disabled) {
+  color: #ffffff;
+  background: #8f1e18;                      /* rojo más oscuro (blanco sobre él = 9:1) */
+  border-color: #8f1e18;
+}
+.fa-app .fa-boton.adm-boton--peligro-solido:active:not(:disabled) {
+  background: #701813;
+  border-color: #701813;
+}
+/* Compacto: para botones dentro de tablas/tarjetas. Menos relleno lateral, SIGUE midiendo 44px de alto. */
+.fa-app .fa-boton.adm-boton--compacto {
+  padding: 0 var(--fa-espacio-3);
+  font-size: var(--fa-texto-sm);
+}
+/* Bloque: ocupa todo el ancho (botón "Entrar", botones en móvil) */
+.fa-app .fa-boton.adm-boton--bloque {
+  width: 100%;
+}
+/* Mini spinner dentro de un botón ("Entrando…", "Guardando…"). Decorativo: aria-hidden en el HTML.
+   Anillo gris con un tramo verde que gira; se ve sobre el gris del botón desactivado. */
+.fa-app .adm-boton__spinner {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--fa-borde);
+  border-top-color: var(--fa-color-primario);
+  border-radius: 50%;
+  animation: adm-giro 0.8s linear infinite;
+}
+@keyframes adm-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Con "reducir movimiento": anillo fijo (el texto ya informa del estado) */
+@media (prefers-reduced-motion: reduce) {
+  .fa-app .adm-boton__spinner {
+    animation: none;
+    border-color: var(--fa-color-primario);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. LOGIN (/login)
+   Tarjeta blanca centrada, ancho máximo 440px. En móvil ocupa todo el ancho útil.
+   -------------------------------------------------------------------------- */
+.fa-app .adm-login {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-block: var(--fa-espacio-4) var(--fa-espacio-5);
+}
+.fa-app .adm-login__tarjeta {
+  width: 100%;
+  max-width: var(--adm-ancho-login);
+  padding: var(--fa-espacio-4) var(--fa-espacio-3);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-tarjeta);
+}
+/* Círculo con candado: decorativo (aria-hidden), da identidad al formulario */
+.fa-app .adm-login__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--fa-espacio-3);
+  color: var(--fa-color-primario);
+  background: var(--fa-color-marca-suave);
+  border-radius: 50%;
+}
+.fa-app .adm-login__icono svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fa-app .adm-login__titulo {
+  margin: 0 0 var(--fa-espacio-2);
+  font-size: var(--fa-texto-xl);
+  text-align: center;
+  color: var(--fa-color-primario-oscuro);
+}
+.fa-app .adm-login__intro {
+  margin: 0 0 var(--fa-espacio-4);
+  text-align: center;
+  color: var(--fa-color-texto-suave);
+}
+/* Los campos del login van apilados con aire entre ellos */
+.fa-app .adm-login .adm-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fa-espacio-3);
+}
+.fa-app .adm-login__volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fa-tactil-min);
+  margin-top: var(--fa-espacio-3);
+  padding: 0 var(--fa-espacio-2);
+  font-weight: 600;
+  color: var(--fa-color-primario);
+  border-radius: var(--fa-radio-sm);
+  text-decoration: underline;
+}
+.fa-app .adm-login__volver:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+@media (min-width: 640px) {
+  .fa-app .adm-login {
+    justify-content: center;
+    padding-block: var(--fa-espacio-5);
+  }
+  .fa-app .adm-login__tarjeta {
+    padding: var(--fa-espacio-5);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Campos de formulario (sirven en login, medicamento y farmacia)
+   Estructura: .adm-campo > label + (ayuda) + control + (error)
+   -------------------------------------------------------------------------- */
+.fa-app .adm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fa-espacio-1);
+  min-width: 0;               /* deja que el campo se encoja en vez de ensanchar la página */
+}
+.fa-app .adm-campo__etiqueta {
+  font-family: var(--fa-fuente-titulos);
+  font-weight: 600;
+  color: var(--fa-color-texto);
+}
+/* "(opcional)" dentro de la etiqueta: más suave y sin negrita */
+.fa-app .adm-campo__opcional {
+  font-family: var(--fa-fuente);
+  font-weight: 400;
+  color: var(--fa-color-texto-suave);
+}
+/* Texto de ayuda bajo la etiqueta (conectado al control con aria-describedby) */
+.fa-app .adm-campo__ayuda {
+  margin: 0;
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave);
+}
+/* Control: input, select. 16px de texto (evita el zoom automático de iOS) y 48px de alto */
+.fa-app .adm-campo__control {
+  width: 100%;
+  min-height: var(--adm-campo-alto);
+  padding: 0 var(--fa-espacio-3);
+  font: inherit;
+  color: var(--fa-color-texto);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde-control);   /* 3,7:1 */
+  border-radius: var(--fa-radio-sm);
+}
+.fa-app .adm-campo__control:hover:not(:disabled) {
+  border-color: var(--fa-color-primario);
+}
+.fa-app .adm-campo__control:focus {
+  border-color: var(--fa-color-primario);
+}
+.fa-app .adm-campo__control:disabled {
+  color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-pagina);
+  cursor: not-allowed;
+}
+.fa-app .adm-campo__control::placeholder {
+  color: var(--fa-color-texto-suave);   /* el placeholder también debe tener contraste (7:1) */
+  opacity: 1;
+}
+/* Campo con error: se detecta por el atributo ARIA aria-invalid="true" (el mismo que lee el lector de
+   pantalla), así el estilo y la accesibilidad nunca se desincronizan. Borde ROJO más grueso + fondo
+   rosado suave; además el mensaje de abajo lleva icono y texto (no se depende solo del color). */
+.fa-app .adm-campo__control[aria-invalid='true'] {
+  border: 2px solid var(--fa-color-error);   /* 6,5:1 */
+  background: #fffafa;
+}
+/* Mensaje de error del campo: icono "!" en círculo (pintado con CSS) + texto rojo */
+.fa-app .adm-campo__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fa-espacio-2);
+  margin: 0;
+  font-size: var(--fa-texto-sm);
+  font-weight: 600;
+  color: var(--fa-color-error);
+}
+.fa-app .adm-campo__error::before {
+  content: '!';
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  background: var(--fa-color-error);
+  border-radius: 50%;
+}
+
+/* Botón "Reintentar" bajo un campo: no se estira a todo el ancho (el campo es una columna flex) */
+.fa-app .adm-campo__reintentar {
+  align-self: flex-start;
+}
+
+/* Grupo: control + algo pegado (prefijo "S/" a la izquierda o botón "Mostrar" a la derecha) */
+.fa-app .adm-campo__grupo {
+  display: flex;
+  align-items: stretch;
+}
+.fa-app .adm-campo__grupo > .adm-campo__control {
+  flex: 1;
+  min-width: 0;
+}
+.fa-app .adm-campo__grupo > .adm-campo__control:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.fa-app .adm-campo__grupo > .adm-campo__control:not(:last-child) {
+  border-right-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+/* Prefijo "S/": gris, no editable (decorativo; la etiqueta ya dice "Precio (S/)") */
+.fa-app .adm-campo__prefijo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--fa-espacio-3);
+  font-weight: 600;
+  color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-fila);
+  border: 1px solid var(--fa-borde-control);
+  border-right-width: 0;
+  border-radius: var(--fa-radio-sm) 0 0 var(--fa-radio-sm);
+}
+/* Botón "Mostrar / Ocultar" de la contraseña: texto verde sobre blanco (5,4:1), 44px mínimo */
+.fa-app .adm-campo__boton {
+  flex-shrink: 0;
+  min-width: 5.5rem;
+  min-height: var(--adm-campo-alto);
+  padding: 0 var(--fa-espacio-3);
+  font: inherit;
+  font-weight: 700;
+  color: var(--fa-color-primario);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde-control);
+  border-radius: 0 var(--fa-radio-sm) var(--fa-radio-sm) 0;
+  cursor: pointer;
+}
+.fa-app .adm-campo__boton:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+/* Si el campo de contraseña tiene error, el botón hereda el borde rojo para que el conjunto se vea unido */
+.fa-app .adm-campo__control[aria-invalid='true'] + .adm-campo__boton {
+  border-color: var(--fa-color-error);
+  border-width: 2px;
+  border-left-width: 1px;
+}
+
+/* Casilla "¿Requiere receta?": toda la fila es clicable y mide >= 44px */
+.fa-app .adm-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fa-espacio-3);
+  min-height: var(--fa-tactil-min);
+  padding: var(--fa-espacio-2) var(--fa-espacio-3);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde-control);
+  border-radius: var(--fa-radio-sm);
+  cursor: pointer;
+}
+.fa-app .adm-check:hover {
+  border-color: var(--fa-color-primario);
+  background: var(--fa-color-marca-suave);
+}
+.fa-app .adm-check input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--fa-color-primario);
+  cursor: pointer;
+}
+.fa-app .adm-check__texto {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+.fa-app .adm-check__ayuda {
+  font-size: var(--fa-texto-sm);
+  font-weight: 400;
+  color: var(--fa-color-texto-suave);
+}
+
+/* --------------------------------------------------------------------------
+   5. Alertas en página (error de login, error de guardado) y resumen de errores
+   -------------------------------------------------------------------------- */
+.fa-app .adm-alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fa-espacio-2);
+  margin: 0;
+  padding: var(--fa-espacio-3);
+  font-size: var(--fa-texto-sm);
+  font-weight: 600;
+  border: 1px solid currentColor;
+  border-left-width: 6px;     /* barra gruesa a la izquierda: se distingue sin depender del color */
+  border-radius: var(--fa-radio-sm);
+}
+.fa-app .adm-alerta--error {
+  color: var(--fa-color-error);
+  background: var(--fa-fondo-error);        /* 5,6:1 */
+}
+.fa-app .adm-alerta--exito {
+  color: var(--fa-color-ok);
+  background: var(--fa-fondo-ok);           /* 5,7:1 */
+}
+.fa-app .adm-alerta--aviso {
+  color: var(--fa-color-aviso);
+  background: var(--fa-fondo-aviso);
+}
+
+/* Resumen de errores (arriba del formulario). Recibe el foco con tabindex="-1" al fallar el envío */
+.fa-app .adm-resumen-errores {
+  margin: 0 0 var(--fa-espacio-4);
+  padding: var(--fa-espacio-3);
+  color: var(--fa-color-error);
+  background: var(--fa-fondo-error);
+  border: 2px solid var(--fa-color-error);
+  border-radius: var(--fa-radio);
+}
+.fa-app .adm-resumen-errores__titulo {
+  margin: 0 0 var(--fa-espacio-2);
+  font-size: var(--fa-texto-lg);
+  color: var(--fa-color-error);
+}
+.fa-app .adm-resumen-errores__lista {
+  margin: 0;
+  padding-left: var(--fa-espacio-4);
+}
+/* Enlaces del resumen: llevan al campo con el error. Alto táctil de 44px y subrayados */
+.fa-app .adm-resumen-errores__lista a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fa-tactil-min);
+  padding: 0;
+  font-weight: 600;
+  color: var(--fa-color-error);
+  text-decoration: underline;
+  background: transparent;
+  transition: none;
+}
+.fa-app .adm-resumen-errores__lista a:hover {
+  color: #8f1e18;
+  background: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   6. FORMULARIOS de administración (medicamento / farmacia)
+   Tarjeta blanca con rejilla: 1 columna en móvil, 2 columnas desde 768px.
+   -------------------------------------------------------------------------- */
+.fa-app .adm-form-tarjeta {
+  max-width: var(--adm-ancho-form);
+  padding: var(--fa-espacio-3);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-tarjeta);
+}
+.fa-app .adm-form-tarjeta__titulo {
+  margin: 0 0 var(--fa-espacio-2);
+  font-size: var(--fa-texto-xl);
+  color: var(--fa-color-primario-oscuro);
+}
+.fa-app .adm-form-tarjeta__titulo:focus {
+  outline: none;               /* recibe foco por código (tabindex -1), no hace falta el aro */
+}
+.fa-app .adm-form__nota {
+  margin: 0 0 var(--fa-espacio-4);
+  color: var(--fa-color-texto-suave);
+}
+.fa-app .adm-form__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--fa-espacio-3);
+}
+/* Ancho completo en cualquier pantalla (p. ej. imagen, receta, inventario) */
+.fa-app .adm-campo--completo {
+  grid-column: 1 / -1;
+}
+.fa-app .adm-form__acciones {
+  display: flex;
+  flex-direction: column;       /* móvil: botones apilados y a todo el ancho */
+  gap: var(--fa-espacio-2);
+  margin-top: var(--fa-espacio-4);
+  padding-top: var(--fa-espacio-3);
+  border-top: 1px solid var(--fa-borde);
+}
+.fa-app .adm-form__acciones .fa-boton {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .fa-app .adm-form-tarjeta {
+    padding: var(--fa-espacio-4);
+  }
+  .fa-app .adm-form__acciones {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  .fa-app .adm-form__acciones .fa-boton {
+    width: auto;
+    min-width: 11rem;
+  }
+}
+@media (min-width: 768px) {
+  .fa-app .adm-form__rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--fa-espacio-4);
+  }
+  .fa-app .adm-form-tarjeta {
+    padding: var(--fa-espacio-5);
+  }
+}
+
+/* Vista previa de la imagen del medicamento (opcional) */
+.fa-app .adm-vista-previa {
+  display: flex;
+  align-items: center;
+  gap: var(--fa-espacio-3);
+  margin: var(--fa-espacio-2) 0 0;
+}
+.fa-app .adm-vista-previa__marco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+}
+.fa-app .adm-vista-previa__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.fa-app .adm-vista-previa__texto {
+  margin: 0;
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave);
+}
+/* Mensaje cuando la ruta de la imagen no carga */
+.fa-app .adm-vista-previa__fallo {
+  color: var(--fa-color-aviso);       /* #8a4b00 sobre blanco = 6,5:1 */
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   7. Bloque "Disponibilidad por farmacia" (filas repetibles)
+   Móvil: cada fila es una tarjeta con los campos apilados.
+   Escritorio (>= 1024px): una sola línea [Farmacia][Precio][Precio anterior][Stock][Quitar].
+   -------------------------------------------------------------------------- */
+.fa-app .adm-inventario {
+  min-width: 0;
+  margin: 0;                  /* reinicia los márgenes/bordes por defecto de <fieldset> */
+  padding: 0;
+  border: 0;
+}
+.fa-app .adm-inventario__titulo {
+  padding: 0;                 /* <legend> */
+  margin-bottom: var(--fa-espacio-1);
+  font-family: var(--fa-fuente-titulos);
+  font-size: var(--fa-texto-lg);
+  font-weight: 700;
+  color: var(--fa-color-primario-oscuro);
+}
+.fa-app .adm-inventario__ayuda {
+  margin: 0 0 var(--fa-espacio-3);
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave);
+}
+.fa-app .adm-inventario__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fa-espacio-3);
+  margin: 0 0 var(--fa-espacio-3);
+  padding: 0;
+  list-style: none;
+}
+.fa-app .adm-fila-inventario {
+  padding: var(--fa-espacio-3);
+  background: var(--fa-fondo-pagina);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+}
+.fa-app .adm-fila-inventario__titulo {
+  margin: 0 0 var(--fa-espacio-2);
+  font-family: var(--fa-fuente-titulos);
+  font-weight: 700;
+  color: var(--fa-color-primario-oscuro);
+}
+.fa-app .adm-fila-inventario__campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));   /* móvil: precio | precio anterior, stock | quitar */
+  gap: var(--fa-espacio-3);
+  align-items: start;
+}
+/* En móvil la farmacia ocupa las dos columnas */
+.fa-app .adm-fila-inventario__campos > .adm-campo--farmacia {
+  grid-column: 1 / -1;
+}
+/* El botón "Quitar" se alinea abajo (junto al campo de stock) */
+.fa-app .adm-fila-inventario__quitar {
+  align-self: end;
+  width: 100%;
+}
+.fa-app .adm-inventario__vacio {
+  margin: 0 0 var(--fa-espacio-3);
+  padding: var(--fa-espacio-3);
+  text-align: center;
+  color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-pagina);
+  border: 1px dashed var(--fa-borde-control);
+  border-radius: var(--fa-radio);
+}
+.fa-app .adm-inventario__agregar {
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .fa-app .adm-inventario__agregar {
+    width: auto;
+  }
+}
+@media (min-width: 1024px) {
+  /* 5 columnas: farmacia más ancha (2fr), números más estrechos y botón a su tamaño */
+  .fa-app .adm-fila-inventario__campos {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+  .fa-app .adm-fila-inventario__campos > .adm-campo--farmacia {
+    grid-column: auto;
+  }
+  .fa-app .adm-fila-inventario__quitar {
+    width: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. PESTAÑAS (patrón ARIA tabs): Medicamentos | Farmacias
+   El estado seleccionado se dibuja con aria-selected="true" (el mismo atributo que lee el lector).
+   Se distingue por: texto en negrita + barra gruesa inferior + fondo blanco (no solo por el color).
+   -------------------------------------------------------------------------- */
+.fa-app .adm-tabs__lista {
+  display: flex;
+  gap: var(--fa-espacio-1);
+  border-bottom: 2px solid var(--fa-borde);
+}
+.fa-app .adm-tab {
+  flex: 1 1 0;                 /* móvil: cada pestaña ocupa la mitad */
+  min-height: 48px;
+  margin-bottom: -2px;         /* la barra de la pestaña tapa la línea gris de la lista */
+  padding: 0 var(--fa-espacio-3);
+  font-family: var(--fa-fuente-titulos);
+  font-size: var(--fa-texto-base);
+  font-weight: 600;
+  color: var(--fa-color-texto-suave);       /* 5,9:1 sobre el gris de la página */
+  background: transparent;
+  border: 0;
+  border-bottom: 4px solid transparent;
+  border-radius: var(--fa-radio-sm) var(--fa-radio-sm) 0 0;
+  cursor: pointer;
+}
+.fa-app .adm-tab:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+.fa-app .adm-tab[aria-selected='true'] {
+  font-weight: 700;
+  color: var(--fa-color-primario-oscuro);   /* 9,9:1 */
+  background: var(--fa-fondo-superficie);
+  border-bottom-color: var(--fa-color-primario);
+}
+/* Dentro de la lista, el aro de foco se dibuja hacia dentro para que no lo recorte el borde */
+.fa-app .adm-tab:focus-visible {
+  outline-offset: -3px;
+}
+.fa-app .adm-panel {
+  padding-top: var(--fa-espacio-4);
+}
+.fa-app .adm-panel__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fa-espacio-3);
+  margin-bottom: var(--fa-espacio-3);
+}
+.fa-app .adm-panel__titulo {
+  margin: 0;
+  font-size: var(--fa-texto-lg);
+  color: var(--fa-color-texto);
+}
+.fa-app .adm-panel__titulo:focus {
+  outline: none;               /* recibe foco por código tras borrar/guardar (tabindex -1) */
+}
+.fa-app .adm-panel__contador {
+  font-family: var(--fa-fuente);
+  font-weight: 400;
+  color: var(--fa-color-texto-suave);
+}
+.fa-app .adm-panel__nuevo {
+  width: 100%;                 /* móvil: botón a todo el ancho bajo el título */
+}
+@media (min-width: 640px) {
+  .fa-app .adm-tab {
+    flex: 0 0 auto;
+    min-width: 11rem;
+  }
+  .fa-app .adm-panel__nuevo {
+    width: auto;
+  }
+  .fa-app .adm-panel__titulo {
+    font-size: var(--fa-texto-xl);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. TABLA -> TARJETAS
+   Móvil (< 768px): cada <tr> es una tarjeta; cada <td> muestra su "etiqueta" (data-label) a la
+   izquierda y el valor a la derecha. La cabecera <thead> se oculta visualmente PERO sigue en el DOM.
+   Desde 768px: tabla normal.
+   OJO: al cambiar `display` en tablas, algunos navegadores pierden la semántica de tabla para los
+   lectores de pantalla. Por eso el HTML lleva role="table|rowgroup|row|columnheader|cell" explícitos.
+   -------------------------------------------------------------------------- */
+.fa-app .adm-tabla-caja {
+  background: transparent;
+}
+.fa-app .adm-tabla {
+  display: block;
+  width: 100%;
+  border-collapse: collapse;
+}
+/* thead oculto a la vista pero accesible (mismo patrón que .fa-visualmente-oculto) */
+.fa-app .adm-tabla thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.fa-app .adm-tabla tbody {
+  display: grid;
+  gap: var(--fa-espacio-3);
+}
+.fa-app .adm-tabla tr {
+  display: grid;
+  gap: var(--fa-espacio-1);
+  padding: var(--fa-espacio-3);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-tarjeta);
+}
+.fa-app .adm-tabla td {
+  display: grid;
+  grid-template-columns: minmax(6rem, 38%) minmax(0, 1fr);   /* etiqueta | valor */
+  gap: var(--fa-espacio-2);
+  align-items: baseline;
+  padding: var(--fa-espacio-1) 0;
+  overflow-wrap: anywhere;
+}
+/* La etiqueta sale del atributo data-label="Categoría" de cada <td> */
+.fa-app .adm-tabla td::before {
+  content: attr(data-label);
+  font-size: var(--fa-texto-sm);
+  font-weight: 600;
+  color: var(--fa-color-texto-suave);
+}
+/* Celda principal (nombre): sin etiqueta, hace de título de la tarjeta */
+.fa-app .adm-tabla td.adm-tabla__principal {
+  display: block;
+  padding-bottom: var(--fa-espacio-2);
+  border-bottom: 1px solid var(--fa-borde);
+}
+.fa-app .adm-tabla td.adm-tabla__principal::before {
+  content: none;
+}
+.fa-app .adm-tabla__nombre {
+  display: block;
+  font-family: var(--fa-fuente-titulos);
+  font-size: var(--fa-texto-lg);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--fa-color-texto);
+}
+.fa-app .adm-tabla__secundario {
+  display: block;
+  font-size: var(--fa-texto-sm);
+  color: var(--fa-color-texto-suave);
+}
+/* Celda de acciones: dos botones que se reparten el ancho de la tarjeta */
+.fa-app .adm-tabla td.adm-tabla__acciones {
+  display: flex;
+  gap: var(--fa-espacio-2);
+  margin-top: var(--fa-espacio-2);
+  padding-top: var(--fa-espacio-3);
+  border-top: 1px solid var(--fa-borde);
+}
+.fa-app .adm-tabla td.adm-tabla__acciones::before {
+  content: none;
+}
+.fa-app .adm-tabla__acciones .fa-boton {
+  flex: 1 1 0;
+}
+/* Fila que se está borrando (aria-busy="true"): se atenúa para dar feedback */
+.fa-app .adm-tabla tr[aria-busy='true'] {
+  opacity: 0.6;
+}
+
+/* Etiqueta de venta (receta / directa): mismos colores que la tarjeta de la tienda */
+.fa-app .adm-etiqueta {
+  display: inline-block;
+  padding: 2px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--fa-radio-sm);
+}
+.fa-app .adm-etiqueta--receta {
+  color: var(--fa-color-aviso);
+  background: var(--fa-fondo-aviso);
+}
+.fa-app .adm-etiqueta--directa {
+  color: var(--fa-color-ok);
+  background: var(--fa-fondo-ok);
+}
+
+@media (min-width: 768px) {
+  /* Caja blanca redondeada alrededor de la tabla; overflow:hidden recorta las esquinas */
+  .fa-app .adm-tabla-caja {
+    overflow: hidden;
+    background: var(--fa-fondo-superficie);
+    border: 1px solid var(--fa-borde);
+    border-radius: var(--fa-radio);
+    box-shadow: var(--fa-sombra-tarjeta);
+  }
+  /* Devolvemos a cada etiqueta su comportamiento de tabla real */
+  .fa-app .adm-tabla {
+    display: table;
+  }
+  .fa-app .adm-tabla thead {
+    position: static;
+    display: table-header-group;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+  .fa-app .adm-tabla tbody {
+    display: table-row-group;
+  }
+  .fa-app .adm-tabla tr {
+    display: table-row;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .fa-app .adm-tabla th,
+  .fa-app .adm-tabla td {
+    display: table-cell;
+    padding: var(--fa-espacio-3);
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--fa-borde);
+  }
+  .fa-app .adm-tabla td::before {
+    content: none;                    /* las etiquetas ya están en la cabecera */
+  }
+  .fa-app .adm-tabla th {
+    font-family: var(--fa-fuente-titulos);
+    font-size: var(--fa-texto-sm);
+    font-weight: 600;
+    color: var(--fa-color-primario-oscuro);   /* 8,6:1 sobre #eef0f0 */
+    background: var(--fa-fondo-fila);
+  }
+  .fa-app .adm-tabla tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .fa-app .adm-tabla tbody tr:hover {
+    background: var(--fa-fondo-pagina);
+  }
+  .fa-app .adm-tabla td.adm-tabla__principal {
+    display: table-cell;
+    padding-bottom: var(--fa-espacio-3);
+    border-bottom: 1px solid var(--fa-borde);
+  }
+  .fa-app .adm-tabla tbody tr:last-child td.adm-tabla__principal {
+    border-bottom: 0;
+  }
+  .fa-app .adm-tabla__nombre {
+    font-size: var(--fa-texto-base);
+  }
+  /* Acciones: los dos botones en línea, alineados a la derecha, sin estirarse */
+  .fa-app .adm-tabla td.adm-tabla__acciones {
+    display: table-cell;
+    width: 1%;                        /* la columna solo ocupa lo que necesitan los botones */
+    white-space: nowrap;
+    margin: 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--fa-borde);
+    text-align: right;
+  }
+  .fa-app .adm-tabla tbody tr:last-child td.adm-tabla__acciones {
+    border-bottom: 0;
+  }
+  .fa-app .adm-tabla__acciones .fa-boton {
+    flex: none;
+  }
+  .fa-app .adm-tabla__acciones .fa-boton + .fa-boton {
+    margin-left: var(--fa-espacio-2);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   10. ESTADOS de la lista: vacío y error
+   (El estado "cargando" reutiliza el componente existente EstadoCarga.vue, que ya tiene role="status".)
+   -------------------------------------------------------------------------- */
+.fa-app .adm-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fa-espacio-2);
+  padding: var(--fa-espacio-5) var(--fa-espacio-3);
+  text-align: center;
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
+}
+.fa-app .adm-estado__titulo {
+  margin: 0;
+  font-size: var(--fa-texto-lg);
+  color: var(--fa-color-texto);
+}
+.fa-app .adm-estado__texto {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--fa-color-texto-suave);
+}
+.fa-app .adm-estado .fa-boton {
+  margin-top: var(--fa-espacio-2);
+}
+/* Variante de error: borde y título rojos (el icono y el texto también lo dicen: no solo color) */
+.fa-app .adm-estado--error {
+  background: var(--fa-fondo-error);
+  border-color: var(--fa-color-error);
+}
+.fa-app .adm-estado--error .adm-estado__titulo {
+  color: var(--fa-color-error);
+}
+.fa-app .adm-estado--error .adm-estado__texto {
+  color: var(--fa-color-texto);       /* 13:1 sobre el rosa claro */
+}
+
+/* --------------------------------------------------------------------------
+   11. DIÁLOGO de confirmación de borrado (<dialog> nativo + showModal())
+   Con showModal() el NAVEGADOR atrapa el foco, cierra con Esc, deja inerte el resto de la página y
+   devuelve el foco a quien lo abrió. Nunca se usa window.confirm (bloquea las pruebas automáticas).
+   IMPORTANTE: NO se pone `display` en .adm-dialogo a secas, porque rompería el display:none que el
+   navegador aplica al <dialog> cerrado. Solo se toca con [open].
+   -------------------------------------------------------------------------- */
+.fa-app .adm-dialogo {
+  width: min(92vw, 30rem);
+  max-height: 90vh;
+  max-height: 90dvh;
+  margin: auto; /* el reset `* { margin: 0 }` de base.css quita el centrado nativo del <dialog>; esto lo devuelve */
+  padding: 0;
+  overflow: auto;
+  color: var(--fa-color-texto);
+  background: var(--fa-fondo-superficie);
+  border: 0;
+  border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-megamenu);
+}
+/* ::backdrop = la capa oscura detrás. Mismo color que el cajón del menú (verde casi negro, 50%) */
+.adm-dialogo::backdrop {
+  background: var(--fa-fondo-overlay, rgba(4, 36, 20, 0.5));
+}
+.fa-app .adm-dialogo__cuerpo {
+  padding: var(--fa-espacio-4) var(--fa-espacio-3) var(--fa-espacio-3);
+}
+/* Icono de aviso rojo (triángulo) arriba: decorativo (aria-hidden) */
+.fa-app .adm-dialogo__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--fa-espacio-3);
+  color: var(--fa-color-error);
+  background: var(--fa-fondo-error);
+  border-radius: 50%;
+}
+.fa-app .adm-dialogo__icono svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fa-app .adm-dialogo__titulo {
+  margin: 0 0 var(--fa-espacio-2);
+  font-size: var(--fa-texto-xl);
+  line-height: 1.25;
+  color: var(--fa-color-texto);
+  overflow-wrap: anywhere;
+}
+.fa-app .adm-dialogo__texto {
+  margin: 0 0 var(--fa-espacio-3);
+  color: var(--fa-color-texto);
+}
+.fa-app .adm-dialogo__acciones {
+  display: flex;
+  flex-direction: column;            /* móvil: botones apilados, Cancelar primero */
+  gap: var(--fa-espacio-2);
+  padding: var(--fa-espacio-3);
+  background: var(--fa-fondo-pagina);
+  border-top: 1px solid var(--fa-borde);
+}
+.fa-app .adm-dialogo__acciones .fa-boton {
+  width: 100%;
+}
+@media (min-width: 480px) {
+  .fa-app .adm-dialogo__cuerpo {
+    padding: var(--fa-espacio-4);
+  }
+  .fa-app .adm-dialogo__acciones {
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: var(--fa-espacio-3) var(--fa-espacio-4);
+  }
+  .fa-app .adm-dialogo__acciones .fa-boton {
+    width: auto;
+    min-width: 8rem;
+  }
+}
+/* Mientras hay un diálogo abierto la página de atrás no se desplaza (sin JavaScript).
+   :has() = "el body que contiene un diálogo abierto". */
+body:has(.adm-dialogo[open]) {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   12. AVISOS ("toasts") de éxito / error tras guardar o borrar
+   Dos regiones "live" que EXISTEN SIEMPRE en la página (vacías): los lectores de pantalla anuncian
+   mejor el texto nuevo si la región ya estaba ahí.
+     - role="status"  (educado)  -> avisos de éxito
+     - role="alert"   (urgente)  -> avisos de error
+   Se colocan abajo: en móvil a todo el ancho; desde 640px, abajo a la derecha.
+   -------------------------------------------------------------------------- */
+.fa-app .adm-avisos {
+  position: fixed;
+  z-index: 1100;                        /* por encima de la cabecera pegajosa (z-index: 100) */
+  left: var(--fa-espacio-3);
+  right: var(--fa-espacio-3);
+  bottom: var(--fa-espacio-3);
+  bottom: max(var(--fa-espacio-3), env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--fa-espacio-2);
+  pointer-events: none;                 /* el contenedor no bloquea clics en la página... */
+}
+.fa-app .adm-avisos__region {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fa-espacio-2);
+}
+.fa-app .adm-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--fa-espacio-2);
+  min-height: var(--fa-tactil-min);
+  padding: var(--fa-espacio-2) var(--fa-espacio-1) var(--fa-espacio-2) var(--fa-espacio-3);
+  color: #ffffff;
+  border-radius: var(--fa-radio);
+  box-shadow: var(--fa-sombra-tarjeta-hover);
+  pointer-events: auto;                 /* ...pero cada aviso sí es pulsable */
+  animation: adm-aparecer 0.2s ease-out;
+}
+@keyframes adm-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Éxito: verde muy oscuro con blanco = 9,9:1 */
+.fa-app .adm-toast--exito {
+  background: var(--fa-color-primario-oscuro);
+  border-left: 6px solid var(--fa-color-marca);
+}
+/* Error: rojo con blanco = 6,5:1 */
+.fa-app .adm-toast--error {
+  background: var(--fa-color-error);
+  border-left: 6px solid #ffb4ab;
+}
+.fa-app .adm-toast__icono {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fa-app .adm-toast__texto {
+  flex: 1;
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+/* Botón de cerrar: 44x44. Sobre fondo oscuro el aro de foco azul global se ve poco, así que
+   usamos aro blanco + sombra azul (igual que el botón Cerrar del menú lateral). */
+.fa-app .adm-toast__cerrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--fa-tactil-min);
+  height: var(--fa-tactil-min);
+  padding: 0;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.fa-app .adm-toast__cerrar svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.fa-app .adm-toast__cerrar:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.fa-app .adm-toast__cerrar:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px var(--fa-color-foco);
+}
+@media (min-width: 640px) {
+  .fa-app .adm-avisos {
+    left: auto;                          /* abajo a la derecha, ancho máximo 26rem */
+    width: min(26rem, calc(100vw - 2 * var(--fa-espacio-4)));
+    right: var(--fa-espacio-4);
+    bottom: var(--fa-espacio-4);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   13. CABECERA con y sin sesión (se usa dentro de CabeceraTienda.vue, zona .cabecera__acciones)
+   Sin sesión:  <RouterLink class="adm-cuenta__enlace">  "Bienvenid@ / Iniciar sesión" + icono
+   Con sesión:  enlace "Hola, Ana / Administrar" + botón "Cerrar sesión" (este solo desde 640px; en
+                móvil "Cerrar sesión" está en el menú lateral y en la propia página /admin).
+   Móvil (< 640px): solo icono de usuario de 44x44 (el texto sigue disponible para lectores: está
+   "visualmente oculto", NO display:none). Desde 640px aparece el texto.
+   -------------------------------------------------------------------------- */
+.fa-app .adm-cuenta {
+  display: flex;
+  align-items: center;
+  gap: var(--fa-espacio-1);
+  margin-right: var(--fa-espacio-1);
+}
+.fa-app .adm-cuenta__enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fa-espacio-2);
+  min-width: var(--fa-tactil-min);
+  min-height: var(--fa-tactil-min);
+  padding: 0 var(--fa-espacio-2);
+  font-size: var(--fa-texto-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  color: var(--fa-color-texto);                /* 14:1 sobre blanco */
+  background: transparent;
+  border-radius: var(--fa-radio-sm);
+  text-decoration: none;
+  transition: none;
+}
+.fa-app .adm-cuenta__enlace:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+/* Página actual (RouterLink pone esta clase): barra inferior verde */
+.fa-app .adm-cuenta__enlace.router-link-active {
+  box-shadow: inset 0 -3px 0 var(--fa-color-primario);
+}
+.fa-app .adm-cuenta__icono {
+  order: -1;                                    /* el icono va antes del texto aunque esté después en el HTML */
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  color: var(--fa-color-primario);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Texto: oculto visualmente en móvil (sigue leyéndolo el lector de pantalla) */
+.fa-app .adm-cuenta__texto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.fa-app .adm-cuenta__saludo {
+  display: block;
+  max-width: 14ch;                              /* nombres largos se cortan con "…" */
+  overflow: hidden;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fa-app .adm-cuenta__accion {
+  display: block;
+  font-weight: 700;
+}
+/* "Cerrar sesión" en la cabecera: botón de contorno verde. Oculto en móvil. */
+.fa-app .adm-cuenta__salir {
+  display: none;
+  align-items: center;
+  min-height: var(--fa-tactil-min);
+  padding: 0 var(--fa-espacio-3);
+  font: inherit;
+  font-size: var(--fa-texto-sm);
+  font-weight: 700;
+  color: var(--fa-color-primario);
+  background: var(--fa-fondo-superficie);
+  border: 2px solid var(--fa-color-primario);
+  border-radius: var(--fa-radio-pildora);
+  cursor: pointer;
+}
+.fa-app .adm-cuenta__salir:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+}
+@media (min-width: 640px) {
+  .fa-app .adm-cuenta__texto {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+  }
+  .fa-app .adm-cuenta__salir {
+    display: inline-flex;
+  }
+}
+/* Móviles muy estrechos: sin margen extra para que el logotipo siga cabiendo a 320px */
+@media (max-width: 359.98px) {
+  .fa-app .adm-cuenta {
+    margin-right: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   14. Movimiento reducido: los avisos aparecen sin animar
+   (farmaapp.css ya recorta animaciones dentro de .fa-app; lo repetimos explícito por claridad)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .fa-app .adm-toast {
+    animation: none;
+  }
+}
