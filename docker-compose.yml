@@ -1,0 +1,20 @@
+# docker-compose.yml
+# Receta que le dice a Docker cómo armar la base de datos PostgreSQL en tu PC.
+# Solo para desarrollo local: la contraseña de abajo es de práctica, NO la uses en producción.
+
+services:
+  db:                                  # nombre del servicio (la "caja" de la base de datos)
+    image: postgres:16                 # imagen oficial de PostgreSQL versión 16, se descarga sola
+    container_name: farmaapp-db        # nombre fácil de reconocer en Docker
+    restart: unless-stopped            # se vuelve a encender sola cuando abres Docker
+    environment:
+      POSTGRES_USER: farmaapp          # usuario de la base
+      POSTGRES_PASSWORD:  123456 # contraseña de práctica (puedes cambiarla)
+      POSTGRES_DB: farmaapp            # nombre de la base de datos que se crea al inicio
+    ports:
+      - "5432:5432"                    # puerto PC:caja -> así tu PC se conecta a la base
+    volumes:
+      - farmaapp_datos:/var/lib/postgresql/data   # guarda los datos aunque apagues o borres la caja
+
+volumes:
+  farmaapp_datos:                      # espacio donde Docker guarda los datos de forma permanente
