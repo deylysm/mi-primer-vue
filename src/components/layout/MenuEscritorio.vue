@@ -27,8 +27,8 @@
 // 'vue' y 'vue-router' son paquetes instalados en node_modules.
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
-// Alias @ -> src/. Datos de prueba y lógica del buscador (ya existentes).
-import { categorias } from '@/mocks/categorias.mock.js'
+// Alias @ -> src/. Categorías que vienen de la API (estado compartido) y lógica del buscador.
+import { useCategorias } from '@/composables/useCategorias.js'
 import { useBusquedaMedicamentos } from '@/composables/useBusquedaMedicamentos.js'
 // Componente local: icono lineal de cada categoría (alias @ -> src/components/comunes/).
 import IconoCategoria from '@/components/comunes/IconoCategoria.vue'
@@ -39,15 +39,20 @@ const props = defineProps({
 const emit = defineEmits(['cerrar'])
 
 const { seleccionarCategoria } = useBusquedaMedicamentos()
+// `categorias` es un ref ([] mientras carga): en el script se lee con `.value`, en la plantilla no.
+const { categorias } = useCategorias()
 
 const mega = ref(null) // referencia al <nav> (template ref): sirve para buscar filas y enlaces dentro
 
-// Categoría que se muestra en el panel derecho. Empieza con la primera y, al reabrir el menú,
-// conserva la última usada (el componente sigue montado: solo el contenido va con v-if).
-const categoriaActivaId = ref(categorias[0]?.id ?? '')
+// Categoría que se muestra en el panel derecho. Empieza vacía y el computed cae en la primera
+// categoría cuando llegan de la API; al reabrir el menú conserva la última usada (el componente
+// sigue montado: solo el contenido va con v-if).
+const categoriaElegidaId = ref('') // lo que eligió el usuario ('' = todavía nada)
 const categoriaActiva = computed(
-  () => categorias.find((c) => c.id === categoriaActivaId.value) ?? categorias[0],
+  () => categorias.value.find((c) => c.id === categoriaElegidaId.value) ?? categorias.value[0],
 )
+// Id de la categoría activa (la elegida o, por defecto, la primera). Solo lectura.
+const categoriaActivaId = computed(() => categoriaActiva.value?.id ?? '')
 // `?.` y `?? []` toleran que una categoría no tenga `subcategorias` (ausente o vacío).
 const subcategorias = computed(() => categoriaActiva.value?.subcategorias ?? [])
 
@@ -67,13 +72,13 @@ function programarHover(id) {
   cancelarHover()
   if (id === categoriaActivaId.value) return
   temporizador = setTimeout(() => {
-    categoriaActivaId.value = id
+    categoriaElegidaId.value = id
     temporizador = null
   }, 100)
 }
 function activar(id) {
   cancelarHover()
-  categoriaActivaId.value = id
+  categoriaElegidaId.value = id
 }
 // Limpiamos el temporizador si el componente se destruye (evita que se ejecute "en el vacío").
 onBeforeUnmount(cancelarHover)
@@ -130,7 +135,7 @@ function alPulsarTecla(evento) {
       evento.preventDefault()
       lista[(indice - 1 + lista.length) % lista.length].focus()
     } else if (evento.key === 'ArrowRight') {
-      const categoria = categorias.find((c) => c.id === fila.dataset.categoria)
+      const categoria = categorias.value.find((c) => c.id === fila.dataset.categoria)
       if (categoria && tieneSubcategorias(categoria)) {
         evento.preventDefault()
         activar(categoria.id)

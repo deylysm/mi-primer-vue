@@ -1,27 +1,17 @@
-// Servicio de medicamentos (simulado).
-// En el futuro este archivo se reemplazará por llamadas fetch a FastAPI,
-// manteniendo la misma forma de respuesta.
+// Servicio de medicamentos: pide los datos a la API FastAPI (con fetch, vía pedir()).
+// Quién lo usa: el composable useBusquedaMedicamentos.js y DetalleMedicamentoView.vue.
 // Imports locales con ruta relativa (archivos dentro de src/).
-import { farmacias } from '../mocks/farmacias.mock.js'
-import { medicamentos } from '../mocks/medicamentos.mock.js'
-import { normalizar } from '../utils/normalizar.js'
-
-const RETRASO_MS = 400 // espera simulada de red
-
-// Pausa asíncrona para imitar una petición al servidor.
-const esperar = (ms) => new Promise((resolver) => setTimeout(resolver, ms))
+import { pedir } from './api.js'
 
 /** Devuelve la lista de farmacias. */
 export async function listarFarmacias() {
-  await esperar(RETRASO_MS)
+  const farmacias = await pedir('/farmacias')
   return farmacias.map((f) => ({ ...f }))
 }
 
 /** Devuelve las marcas distintas que hay en los datos, ordenadas A-Z (para el filtro "Marca"). */
 export async function listarMarcas() {
-  await esperar(RETRASO_MS)
-  const marcas = new Set(medicamentos.map((m) => m.marca).filter(Boolean))
-  return [...marcas].sort((a, b) => a.localeCompare(b, 'es'))
+  return pedir('/marcas') // la API ya las devuelve distintas y ordenadas
 }
 
 /**
@@ -31,8 +21,7 @@ export async function listarMarcas() {
  * marca (null = todas), receta ('' = todas | 'sin-receta' | 'con-receta').
  * orden: 'precio-asc' (defecto) | 'precio-desc' | 'nombre'.
  *
- * PRUEBA MANUAL DE ERROR: si el término normalizado es exactamente "error",
- * lanza una excepción para ver el estado de error en la interfaz.
+ * Si la API falla (red caída, 500...) la excepción se propaga y la interfaz muestra el estado de error.
  */
 export async function buscarMedicamentos({
   termino = '',
@@ -44,25 +33,28 @@ export async function buscarMedicamentos({
   marca = null, // nombre exacto de la marca; null = todas
   receta = '', // '' = todas | 'sin-receta' | 'con-receta'
 } = {}) {
-  await esperar(RETRASO_MS)
+  // El filtrado por texto, categoría, marca y receta lo hace la API: armamos el querystring
+  // (?q=...&categoria=...) con URLSearchParams, que codifica los caracteres especiales por nosotros.
+  // Solo se incluyen los parámetros que tienen valor.
+  const params = new URLSearchParams()
+  const q = String(termino ?? '').trim()
+  if (q) params.set('q', q)
+  if (categoria) params.set('categoria', categoria)
+  if (marca) params.set('marca', marca)
+  if (receta) params.set('receta', receta)
+  const query = params.toString()
 
-  const buscado = normalizar(termino)
-  if (buscado === 'error') throw new Error('Error simulado para pruebas')
+  // Las dos peticiones se hacen a la vez (Promise.all) y se espera a que terminen ambas.
+  const [farmacias, medicamentos] = await Promise.all([
+    pedir('/farmacias'),
+    pedir(query ? `/medicamentos?${query}` : '/medicamentos'),
+  ])
 
   const farmaciasPorId = new Map(farmacias.map((f) => [f.id, f]))
 
   // Aplana: cada medicamento x cada farmacia en su inventario.
   const ofertas = []
   for (const med of medicamentos) {
-    if (categoria && med.categoria !== categoria) continue
-    if (marca && med.marca !== marca) continue
-    if (receta === 'sin-receta' && med.requiereReceta) continue
-    if (receta === 'con-receta' && !med.requiereReceta) continue
-    const coincide =
-      normalizar(med.nombre).includes(buscado) ||
-      normalizar(med.principioActivo).includes(buscado)
-    if (!coincide) continue
-
     for (const item of med.inventario) {
       const farmacia = farmaciasPorId.get(item.farmaciaId)
       if (!farmacia) continue
@@ -102,19 +94,20 @@ export async function buscarMedicamentos({
 
 /**
  * Devuelve UN medicamento con todas sus ofertas (una por farmacia, de más barata a más cara),
- * o `null` si el id no existe. El id llega como texto desde la URL, por eso se convierte a número.
- *
- * PRUEBA MANUAL DE ERROR: si el id es exactamente "error" (/medicamento/error),
- * lanza una excepción para ver el estado de error.
+ * o `null` si la API responde 404. Cualquier otro error (red, 422, 500...) se propaga.
  */
 export async function obtenerMedicamentoPorId(id) {
-  await esperar(RETRASO_MS)
-
-  if (String(id) === 'error') throw new Error('Error simulado para pruebas')
-
-  const numero = Number(id)
-  const med = medicamentos.find((m) => m.id === numero)
-  if (!med) return null
+  let med, farmacias
+  try {
+    // El id llega como texto desde la URL; encodeURIComponent evita que caracteres raros rompan la ruta.
+    ;[med, farmacias] = await Promise.all([
+      pedir(`/medicamentos/${encodeURIComponent(id)}`),
+      pedir('/farmacias'),
+    ])
+  } catch (error) {
+    if (error.status === 404) return null
+    throw error
+  }
 
   const farmaciasPorId = new Map(farmacias.map((f) => [f.id, f]))
   const ofertas = med.inventario

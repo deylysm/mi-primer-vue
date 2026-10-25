@@ -9,7 +9,7 @@ import {
   OPCIONES_ORDEN,
   OPCIONES_MOSTRAR,
 } from '@/composables/useBusquedaMedicamentos.js'
-import { nombreCategoria } from '@/mocks/categorias.mock.js'
+import { useCategorias } from '@/composables/useCategorias.js'
 import FiltrosBusqueda from '@/components/busqueda/FiltrosBusqueda.vue'
 import ListaResultados from '@/components/busqueda/ListaResultados.vue'
 import EstadoCarga from '@/components/busqueda/EstadoCarga.vue'
@@ -35,6 +35,9 @@ const {
   limpiarFiltros,
   quitarCategoria,
 } = useBusquedaMedicamentos()
+
+// Nombre de una categoría a partir de su id (las categorías vienen de la API).
+const { nombreCategoria } = useCategorias()
 </script>
 
 <template>

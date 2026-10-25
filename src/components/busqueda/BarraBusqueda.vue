@@ -35,6 +35,7 @@ function enviar() {
         type="search"
         placeholder="Buscar medicamento…"
         autocomplete="off"
+        maxlength="50"
         :aria-describedby="faltanCaracteres ? 'fa-busqueda-pista' : undefined"
       />
       <!-- Botón con icono de lupa. El SVG es decorativo (aria-hidden) y el nombre accesible

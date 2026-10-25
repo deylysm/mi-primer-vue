@@ -13,7 +13,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 // Archivos locales de FarmaApp (alias @ -> src/).
 import { obtenerMedicamentoPorId } from '@/services/medicamentosService.js'
 import { useCarrito } from '@/composables/useCarrito.js'
-import { nombreCategoria } from '@/mocks/categorias.mock.js'
+import { useCategorias } from '@/composables/useCategorias.js'
 import { formatearPrecio } from '@/utils/normalizar.js'
 import { describirStock } from '@/utils/stock.js'
 import ImagenMedicamento from '@/components/comunes/ImagenMedicamento.vue'
@@ -29,6 +29,7 @@ const props = defineProps({
 const router = useRouter()
 const route = useRoute()
 const { items, agregar } = useCarrito()
+const { nombreCategoria } = useCategorias() // nombre de categoría a partir de su id (viene de la API)
 
 // ---- Estado de la carga ----
 // 'cargando' | 'ok' | 'no-encontrado' | 'error'

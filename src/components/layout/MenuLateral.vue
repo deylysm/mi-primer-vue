@@ -23,7 +23,7 @@
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 // Archivos locales de FarmaApp (alias @ -> src/).
-import { categorias } from '@/mocks/categorias.mock.js'
+import { useCategorias } from '@/composables/useCategorias.js' // categorías desde la API (estado compartido)
 import { useBusquedaMedicamentos } from '@/composables/useBusquedaMedicamentos.js'
 import { useCarrito } from '@/composables/useCarrito.js'
 // Componente local (alias @ -> src/): el icono lineal de cada categoría.
@@ -37,6 +37,7 @@ const emit = defineEmits(['cerrar'])
 
 const router = useRouter()
 const { seleccionarCategoria } = useBusquedaMedicamentos()
+const { categorias } = useCategorias() // ref ([] mientras carga); en la plantilla se usa sin .value
 const { totalProductos } = useCarrito()
 
 const dialogo = ref(null) // referencia al elemento <dialog> (template ref)

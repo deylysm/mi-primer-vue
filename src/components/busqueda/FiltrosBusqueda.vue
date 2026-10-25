@@ -10,7 +10,7 @@
 // En móvil el panel se abre/cierra con el botón "Filtros"; en >=1024px
 // siempre está visible y el botón se oculta (ver <style>).
 import { ref, nextTick } from 'vue' // paquete 'vue' (node_modules)
-import { categorias } from '@/mocks/categorias.mock.js' // alias @ -> src/: lista de categorías
+import { useCategorias } from '@/composables/useCategorias.js' // alias @ -> src/: categorías desde la API
 
 const props = defineProps({
   filtros: { type: Object, required: true },
@@ -20,6 +20,8 @@ const props = defineProps({
 
 // Mismo nombre que en EstadoVacio.vue para que el padre use un solo manejador.
 const emit = defineEmits(['limpiar-filtros'])
+
+const { categorias } = useCategorias() // ref ([] mientras carga); en la plantilla se usa sin .value
 
 const abierto = ref(false)
 const botonToggle = ref(null) // referencia al <button> (template ref)

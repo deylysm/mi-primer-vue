@@ -83,23 +83,57 @@ def listar_farmacias():
         ).fetchall()
 
 
-def _armar_medicamentos(conn, categoria=None, medicamento_id=None):
+# Para comparar sin mayúsculas ni tildes: pasamos a minúsculas y cambiamos las vocales con tilde
+# por la vocal simple (translate reemplaza letra a letra). La ñ NO se toca (igual que normalizar.js).
+# Es texto fijo escrito por nosotros, no viene del usuario, así que es seguro dentro del SQL.
+_NORMALIZAR_SQL = "lower(translate({}, 'ÁÉÍÓÚÜáéíóúü', 'AEIOUUaeiouu'))"
+
+
+def _armar_medicamentos(
+    conn, categoria=None, medicamento_id=None, q=None, marca=None, receta=None
+):
     """Devuelve medicamentos con la MISMA forma que src/mocks/medicamentos.mock.js (camelCase).
 
     Hace solo 2 consultas: una para los medicamentos y otra para TODO su inventario
     (así evitamos el problema "N+1": una consulta extra por cada medicamento).
+    Todos los filtros son opcionales (None = sin filtro) y se combinan con AND.
     """
-    # 1) Medicamentos (con filtro opcional). Los %s son parámetros: psycopg los escapa por seguridad
+    # Texto buscado: quitamos espacios sobrantes; vacío = sin filtro.
+    q = " ".join(q.split()) if q else None
+    q = q or None
+    marca = marca or None
+
+    # 1) Medicamentos (con filtros opcionales). Los %s son parámetros: psycopg los escapa por seguridad
     #    (nunca pegues texto del usuario directamente dentro del SQL).
-    sql = """
+    #    Búsqueda de texto con strpos(): busca el trozo literal dentro del texto, así que % y _
+    #    del usuario NO actúan como comodines (no hace falta escapar nada, a diferencia de LIKE).
+    nombre_norm = _NORMALIZAR_SQL.format("nombre")
+    activo_norm = _NORMALIZAR_SQL.format("coalesce(principio_activo, '')")
+    q_norm = _NORMALIZAR_SQL.format("%s::text")
+    sql = f"""
         SELECT id, imagen, nombre, marca, principio_activo, presentacion,
                requiere_receta, categoria_id
         FROM medicamentos
         WHERE (%s::text IS NULL OR categoria_id = %s::text)
           AND (%s::int IS NULL OR id = %s::int)
+          AND (%s::text IS NULL
+               OR strpos({nombre_norm}, {q_norm}) > 0
+               OR strpos({activo_norm}, {q_norm}) > 0)
+          AND (%s::text IS NULL OR marca = %s::text)
+          AND (%s::text IS NULL
+               OR (%s::text = 'sin-receta' AND NOT requiere_receta)
+               OR (%s::text = 'con-receta' AND requiere_receta))
         ORDER BY id
     """
-    filas = conn.execute(sql, (categoria, categoria, medicamento_id, medicamento_id)).fetchall()
+    # Los f-strings de arriba solo insertan fragmentos fijos nuestros; los datos del usuario van en %s.
+    parametros = (
+        categoria, categoria,
+        medicamento_id, medicamento_id,
+        q, q, q,
+        marca, marca,
+        receta, receta, receta,
+    )
+    filas = conn.execute(sql, parametros).fetchall()
     if not filas:
         return []
 
@@ -147,10 +181,27 @@ def _armar_medicamentos(conn, categoria=None, medicamento_id=None):
 def listar_medicamentos(
     # máx. 50 caracteres y sin el byte NUL (\x00), que PostgreSQL no acepta en un texto
     categoria: str | None = Query(None, max_length=50, pattern=r"^[^\x00]*$"),
+    # q: texto que debe aparecer en el nombre o en el principio activo (sin importar mayúsculas ni tildes)
+    q: str | None = Query(None, max_length=50, pattern=r"^[^\x00]*$"),
+    # marca: nombre exacto de la marca
+    marca: str | None = Query(None, max_length=50, pattern=r"^[^\x00]*$"),
+    # receta: solo dos valores permitidos; cualquier otro -> 422
+    receta: str | None = Query(None, max_length=50, pattern=r"^(sin-receta|con-receta)$"),
 ):
-    """Lista de medicamentos. Filtro opcional: /medicamentos?categoria=antiinflamatorio"""
+    """Lista de medicamentos. Filtros opcionales y combinables (AND):
+    /medicamentos?q=ibu&categoria=antiinflamatorio&marca=Genfar&receta=sin-receta"""
     with obtener_conexion() as conn:
-        return _armar_medicamentos(conn, categoria=categoria)
+        return _armar_medicamentos(conn, categoria=categoria, q=q, marca=marca, receta=receta)
+
+
+@app.get("/marcas")
+def listar_marcas():
+    """Marcas distintas (sin nulos), ordenadas A-Z: ["Bayer", "Genfar", ...]."""
+    with obtener_conexion() as conn:
+        filas = conn.execute(
+            "SELECT DISTINCT marca FROM medicamentos WHERE marca IS NOT NULL ORDER BY marca"
+        ).fetchall()
+    return [f["marca"] for f in filas]
 
 
 @app.get("/medicamentos/{medicamento_id}")
