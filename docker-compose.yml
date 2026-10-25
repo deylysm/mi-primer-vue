@@ -16,5 +16,17 @@ services:
     volumes:
       - farmaapp_datos:/var/lib/postgresql/data   # guarda los datos aunque apagues o borres la caja
 
+  pgadmin:                             # segunda "caja": visor de tablas que se abre en el navegador
+    image: dpage/pgadmin4              # imagen oficial de pgAdmin
+    container_name: farmaapp-pgadmin   # nombre fácil de reconocer en Docker
+    restart: unless-stopped            # se vuelve a encender sola cuando abres Docker
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@farmaapp.com   # correo para entrar a pgAdmin (de práctica)
+      PGADMIN_DEFAULT_PASSWORD: "admin123"        # contraseña para entrar a pgAdmin (de práctica)
+    ports:
+      - "5050:80"                      # puerto PC:caja -> lo abres en http://localhost:5050
+    depends_on:
+      - db                             # arranca después de la base de datos
+
 volumes:
   farmaapp_datos:                      # espacio donde Docker guarda los datos de forma permanente
