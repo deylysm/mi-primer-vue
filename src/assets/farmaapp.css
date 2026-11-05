@@ -2,6 +2,8 @@
    farmaapp.css - Base visual de FarmaApp
    Lo importa src/views/BuscadorView.vue. Todo lo "de elemento" vive bajo la
    clase .fa-app para no afectar al resto de la app (salvo la sección 5).
+   Estilo "inspirado en" las tiendas de farmacia online: cabecera blanca,
+   franja verde, tarjetas limpias. Paleta y logotipo propios.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -9,12 +11,21 @@
    Una variable CSS se declara con --nombre y se usa con var(--nombre).
    Así cambiamos un color en UN solo lugar y se actualiza en toda la app.
    Prefijo --fa- (FarmaApp) para no chocar con las variables de base.css.
+
+   Contrastes WCAG medidos (ratio mínimo AA: 4.5:1 texto normal, 3:1 texto grande
+   y componentes de interfaz):
+     #ffffff sobre #0b7a38  = 5.4:1  (texto normal OK)
+     #ffffff sobre #064e24  = 9.9:1
+     #ffffff sobre #109d48  = 3.5:1  (SOLO texto grande/negrita o iconos)
    -------------------------------------------------------------------------- */
 :root {
-  /* Colores de marca */
-  --fa-color-primario: #0b6e4f;        /* verde farmacia; blanco encima = 6.25:1 */
-  --fa-color-primario-hover: #085640;  /* verde más oscuro al pasar el ratón */
-  --fa-color-acento: #0a5cad;          /* azul para enlaces y acciones secundarias */
+  /* Colores de marca (escala de verdes) */
+  --fa-color-primario: #0b7a38;        /* verde principal: botones, franja, texto verde */
+  --fa-color-primario-hover: #095f2c;  /* verde más oscuro al pasar el ratón */
+  --fa-color-primario-oscuro: #064e24; /* verde muy oscuro: titulares, pie de página */
+  --fa-color-marca: #109d48;           /* verde vivo (logotipo, acentos). NO para texto pequeño */
+  --fa-color-marca-suave: #e6f6ec;     /* verde clarito para fondos (banner, hover) */
+  --fa-color-acento: #0b7a38;          /* acciones secundarias (botones de contorno) */
 
   /* Colores de estado: texto + fondo van siempre en pareja */
   --fa-color-ok: #146c2e;
@@ -26,20 +37,25 @@
 
   /* Texto */
   --fa-color-texto: #1f2933;
-  --fa-color-texto-suave: #52606d;
+  --fa-color-texto-suave: #52606d;     /* 7:1 sobre blanco */
+  --fa-color-texto-sobre-verde: #ffffff;
+  --fa-color-texto-pie-suave: #d3ecdc; /* texto secundario sobre el pie oscuro (~8:1) */
 
   /* Superficies y bordes */
-  --fa-fondo-pagina: #f5f7f6;
-  --fa-fondo-superficie: #ffffff;      /* tarjetas */
-  --fa-borde: #d5dbe1;                 /* decorativo (separadores, tarjetas) */
-  --fa-borde-control: #6b7785;         /* inputs/botones: >= 3:1 (WCAG 1.4.11) */
+  --fa-fondo-pagina: #f3f4f5;          /* gris muy claro: las tarjetas blancas "destacan" sobre él */
+  --fa-fondo-fila: #eef0f0;            /* filas grises de los filtros (cabeceras de cada filtro) */
+  --fa-fondo-superficie: #ffffff;      /* tarjetas, cabecera */
+  --fa-borde: #dfe5e2;                 /* decorativo (separadores, tarjetas) */
+  --fa-borde-control: #7a8794;         /* inputs/botones: 3.7:1 sobre blanco (WCAG 1.4.11 pide 3:1) */
 
-  /* Foco del teclado */
+  /* Foco del teclado (azul: se distingue del verde de la marca y se ve sobre blanco) */
   --fa-color-foco: #0a5cad;
 
-  /* Tipografía */
-  --fa-fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+  /* Tipografía: la fuente de Google Fonts va primero; si no carga, system-ui */
+  --fa-fuente: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --fa-fuente-titulos: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   --fa-texto-base: 1rem;      /* 16px */
   --fa-texto-sm: 0.875rem;    /* 14px */
   --fa-texto-lg: 1.125rem;    /* 18px */
@@ -55,22 +71,55 @@
   --fa-espacio-5: 32px;
 
   /* Forma y profundidad */
-  --fa-radio: 8px;
-  --fa-sombra-tarjeta: 0 1px 3px rgba(31, 41, 51, 0.12),
-    0 1px 2px rgba(31, 41, 51, 0.08);
+  --fa-radio: 12px;            /* tarjetas, paneles */
+  --fa-radio-sm: 8px;          /* etiquetas pequeñas */
+  --fa-radio-pildora: 999px;   /* botones y buscador "píldora" (totalmente redondeados) */
+  --fa-sombra-tarjeta: 0 1px 3px rgba(6, 50, 28, 0.1),
+    0 1px 2px rgba(6, 50, 28, 0.06);
+  --fa-sombra-tarjeta-hover: 0 8px 24px rgba(6, 50, 28, 0.16),
+    0 2px 6px rgba(6, 50, 28, 0.08);
+  --fa-sombra-cabecera: 0 2px 8px rgba(6, 50, 28, 0.12);
+  --fa-sombra-megamenu: 0 16px 32px rgba(6, 50, 28, 0.22), 0 2px 6px rgba(6, 50, 28, 0.12); /* panel del mega-menú */
+  --fa-fondo-overlay: rgba(4, 36, 20, 0.5); /* capa oscura detrás del mega-menú */
 
   /* Área táctil mínima recomendada (WCAG 2.5.5 / móviles) */
   --fa-tactil-min: 44px;
+
+  /* Medidas de la maqueta */
+  --fa-ancho-max: 1440px;      /* ancho máximo del contenido en pantallas grandes */
+  --fa-ancho-filtros: 260px;   /* barra lateral de filtros en escritorio (crece en pantallas anchas, ver abajo) */
+  --fa-alto-franja: 2.5rem;    /* alto de la franja verde de ubicación (rem: crece con el zoom de texto) */
+  --fa-alto-cabecera: 5rem;    /* alto aprox. de la parte blanca pegajosa en escritorio */
+
+  /* Naranja SOLO para el círculo del botón "Menú de Categorías". El icono que lleva dentro es
+     oscuro (#1f2933 sobre #f5a000 = ~7:1); un icono blanco NO llegaría ni a 2:1. */
+  --fa-color-naranja: #f5a000;
+  --fa-color-naranja-hover: #e69500;
+}
+
+/* La barra lateral de filtros se ensancha según hay sitio. Una variable CSS puede
+   redefinirse dentro de @media: todo lo que use var(--fa-ancho-filtros) se adapta solo. */
+@media (min-width: 1280px) {
+  :root {
+    --fa-ancho-filtros: 300px;
+  }
+}
+@media (min-width: 1360px) {
+  :root {
+    --fa-ancho-filtros: 360px;
+  }
 }
 
 /* --------------------------------------------------------------------------
    2. Breakpoints (puntos de cambio de diseño adaptable)
    Las variables CSS NO funcionan dentro de @media, así que se escriben a mano:
-     640px  -> móvil grande / tablet pequeña
+     640px  -> móvil grande / tablet pequeña (2 columnas de tarjetas)
      768px  -> tablet
-     1024px -> escritorio
+     1024px -> escritorio pequeño (menú de categorías con texto, 2 columnas + filtros laterales)
+     1280px -> escritorio (ubicación en la cabecera, 3 columnas de tarjetas)
+     1360px -> pantalla ancha (filtros laterales de 360px, como la maqueta)
    Enfoque mobile-first: los estilos base son para móvil y se amplían con
-   @media (min-width: 640px) { ... }, etc.
+   @media (min-width: 640px) { ... }, etc. Revisado también a 320px.
    -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
@@ -82,10 +131,16 @@
   font-family: var(--fa-fuente);
   font-size: var(--fa-texto-base);
   line-height: var(--fa-interlineado);
+  /* Mantiene los controles nativos (checkbox, select) en tema claro aunque el
+     sistema esté en modo oscuro: nuestros colores de fondo son siempre claros. */
+  color-scheme: light;
   min-height: 100vh;
   /* dvh = alto real visible en móviles (descuenta la barra del navegador).
      Los navegadores que no lo entienden se quedan con la línea de arriba. */
   min-height: 100dvh;
+  /* Columna flexible: así el pie de página queda siempre abajo aunque haya pocos resultados. */
+  display: flex;
+  flex-direction: column;
 }
 
 /* box-sizing: el padding y el borde cuentan dentro del ancho declarado,
@@ -95,6 +150,23 @@
 .fa-app *::before,
 .fa-app *::after {
   box-sizing: border-box;
+}
+
+/* base.css pone font-weight:normal y margin:0 a TODO; aquí devolvemos el peso a los
+   títulos (especificidad 0,1,1 > selector universal) y les damos la fuente Poppins. */
+.fa-app h1,
+.fa-app h2,
+.fa-app h3 {
+  font-family: var(--fa-fuente-titulos);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Los controles de formulario no heredan la fuente por defecto: lo forzamos. */
+.fa-app button,
+.fa-app input,
+.fa-app select {
+  font-family: inherit;
 }
 
 /* Foco visible para quien navega con teclado (Tab). :focus-visible solo se
@@ -107,6 +179,21 @@
 /* --------------------------------------------------------------------------
    4. Utilidades globales
    -------------------------------------------------------------------------- */
+
+/* Contenedor centrado: lo usan la cabecera, el banner, <main> y el pie para que
+   todo quede alineado. Fondo a todo el ancho + contenido limitado a --fa-ancho-max. */
+.fa-app .fa-contenedor {
+  width: 100%;
+  max-width: var(--fa-ancho-max);
+  margin-inline: auto;
+  padding-inline: var(--fa-espacio-3);
+}
+
+@media (min-width: 640px) {
+  .fa-app .fa-contenedor {
+    padding-inline: var(--fa-espacio-4);
+  }
+}
 
 /* Enlace "Saltar al contenido": invisible fuera de pantalla hasta que recibe
    foco (primer Tab). Permite al teclado evitar repetir el menú en cada página. */
@@ -154,6 +241,9 @@
    no "salta" cuando el contenido pasa de corto a largo (o al revés). */
 html {
   scrollbar-gutter: stable;
+  /* Con la cabecera pegajosa (sticky), al saltar a un ancla (#contenido) el contenido
+     quedaría tapado por ella. scroll-padding-top deja ese margen libre arriba. */
+  scroll-padding-top: 8rem;
 }
 
 /* Respeta a quien pidió "reducir movimiento" en su sistema operativo:
@@ -183,6 +273,11 @@ body:has(.fa-app) {
      aplican también a bloques normales, y #app se encogía al ancho de su
      contenido y quedaba centrado. Con "normal" vuelve a ocupar todo el ancho. */
   place-items: normal;
+  /* El fondo del body se "extiende" al lienzo y a la reserva de la barra de scroll
+     (scrollbar-gutter). Con el color de la app no asoma una tira blanca junto al pie. */
+  background: var(--fa-fondo-pagina);
+  /* .fa-app ya usa 100dvh; evitamos que el 100vh de main.css deje una franja en móvil. */
+  min-height: 0;
 }
 
 #app:has(> .fa-app) {
@@ -197,4 +292,72 @@ body:has(.fa-app) {
    con texto blanco el contraste fallaría. Esta regla (0,2,0) lo corrige. */
 .fa-saltar-contenido:hover {
   background: var(--fa-color-primario-hover);
+}
+
+/* --------------------------------------------------------------------------
+   6. Botones reutilizables (.fa-boton)
+   Sirven tanto para <button> como para <RouterLink> (que dibuja un <a>).
+   Se escriben como ".fa-app .fa-boton" (especificidad 0,2,0) para ganar al estilo
+   global "a" / "a:hover" de main.css (padding, color y fondo verde al pasar el ratón).
+   Uso:  <button class="fa-boton">  |  <button class="fa-boton fa-boton--secundario">
+   Lo usan DetalleMedicamentoView.vue y CarritoView.vue.
+   -------------------------------------------------------------------------- */
+.fa-app .fa-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fa-espacio-2);
+  min-height: var(--fa-tactil-min);
+  padding: 0 var(--fa-espacio-4);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--fa-color-texto-sobre-verde); /* blanco sobre #0b7a38 = 5,4:1 */
+  background: var(--fa-color-primario);
+  border: 2px solid var(--fa-color-primario);
+  border-radius: var(--fa-radio-pildora);
+  box-shadow: 0 2px 6px rgba(6, 78, 36, 0.25); /* relieve suave: indica que es la acción principal */
+  text-decoration: none;
+  cursor: pointer;
+  transition: none;
+}
+.fa-app .fa-boton:hover {
+  color: var(--fa-color-texto-sobre-verde);
+  background: var(--fa-color-primario-hover);
+  border-color: var(--fa-color-primario-hover);
+}
+/* :active = mientras se mantiene pulsado: color aún más oscuro y sin sombra (se "hunde") */
+.fa-app .fa-boton:active {
+  background: var(--fa-color-primario-oscuro);
+  border-color: var(--fa-color-primario-oscuro);
+  box-shadow: none;
+}
+/* Variante "secundaria": solo contorno, sin sombra (menos protagonismo que la principal) */
+.fa-app .fa-boton--secundario {
+  color: var(--fa-color-primario);
+  background: transparent;
+  box-shadow: none;
+}
+.fa-app .fa-boton--secundario:hover {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+  border-color: var(--fa-color-primario);
+}
+.fa-app .fa-boton--secundario:active {
+  color: var(--fa-color-primario-oscuro);
+  background: var(--fa-color-marca-suave);
+  border-color: var(--fa-color-primario-oscuro);
+}
+/* Desactivado: gris, borde discontinuo, sin puntero, sin sombra y sin efecto al pasar el ratón.
+   #52606d sobre #f4f6f5 = 6,0:1: se lee bien aunque no se pueda pulsar. */
+.fa-app .fa-boton:disabled,
+.fa-app .fa-boton:disabled:hover,
+.fa-app .fa-boton[aria-disabled='true'] {
+  color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-pagina);
+  border-color: var(--fa-borde-control);
+  border-style: dashed;
+  box-shadow: none;
+  cursor: not-allowed;
 }

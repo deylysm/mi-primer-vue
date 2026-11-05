@@ -1,12 +1,16 @@
 <script setup>
-// Indicador de carga. Sin props ni emits. Usado por la vista de búsqueda (Fase 4).
+// Indicador de carga. Prop opcional `texto` (por defecto el de la búsqueda); sin emits.
+// Usado por BuscadorView.vue (búsqueda) y DetalleMedicamentoView.vue (cargando el detalle).
+defineProps({
+  texto: { type: String, default: 'Buscando medicamentos…' },
+})
 </script>
 
 <template>
   <div class="carga" role="status">
     <!-- Hueco para el spinner; decorativo, el lector de pantalla lo ignora -->
     <span class="carga__spinner" aria-hidden="true"></span>
-    <span class="carga__texto">Buscando medicamentos…</span>
+    <span class="carga__texto">{{ texto }}</span>
   </div>
 </template>
 
@@ -16,8 +20,11 @@
   align-items: center;
   justify-content: center;
   gap: var(--fa-espacio-2);
-  padding: var(--fa-espacio-4) var(--fa-espacio-3);
+  padding: var(--fa-espacio-5) var(--fa-espacio-3);
   color: var(--fa-color-texto-suave);
+  background: var(--fa-fondo-superficie);
+  border: 1px solid var(--fa-borde);
+  border-radius: var(--fa-radio);
 }
 /* Spinner: círculo con un borde de otro color que gira */
 .carga__spinner {

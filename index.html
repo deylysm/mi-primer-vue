@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="">
+<!-- lang="es": le dice al navegador y a los lectores de pantalla que la página está en español
+     (pronunciación correcta, traducción automática, corrector ortográfico). -->
+<html lang="es">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <title>FarmaApp — Buscador de medicamentos</title>
+
+    <!-- Fuentes de Google Fonts (no se instala nada con npm: el navegador las descarga).
+         preconnect: abre la conexión con Google antes de pedir la fuente (carga más rápida).
+         crossorigin: obligatorio en gstatic porque los archivos de fuente se piden en modo CORS.
+         display=swap: mientras llega la fuente se muestra una del sistema (el texto nunca queda invisible).
+         Poppins = títulos, precios y logotipo. Open Sans = texto corrido. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@600;700;800&display=swap"
+    >
   </head>
   <body>
     <div id="app"></div>

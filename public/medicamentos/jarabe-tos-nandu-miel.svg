@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Frasco azul de jarabe para la tos de ñandú y miel, 120 ml, con vasito dosificador</title>
+  <rect width="400" height="400" rx="48" fill="#e8f0fb"/>
+  <ellipse cx="190" cy="340" rx="150" ry="13" fill="#000" opacity=".14"/>
+  <!-- Frasco: cuello, tapa y cuerpo -->
+  <rect x="158" y="86" width="64" height="26" fill="#b3c9f0" stroke="#1b3b73" stroke-width="3"/>
+  <rect x="148" y="44" width="84" height="44" rx="10" fill="#1b3b73" stroke="#1b3b73" stroke-width="3"/>
+  <path d="M164 54V78M177 54V78M190 54V78M203 54V78M216 54V78" stroke="#b3c9f0" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+  <rect x="105" y="106" width="170" height="224" rx="34" fill="#3b6fd4" stroke="#1b3b73" stroke-width="3"/>
+  <rect x="119" y="130" width="10" height="160" rx="5" fill="#fff" opacity=".3"/>
+  <rect x="105" y="156" width="170" height="140" fill="#fff" stroke="#1b3b73" stroke-width="2.5"/>
+  <!-- Gota de miel -->
+  <path d="M190 164C190 164 177 180 177 187a13 13 0 0 0 26 0C203 180 190 164 190 164z" fill="#f5a623" stroke="#1b3b73" stroke-width="2.5" stroke-linejoin="round"/>
+  <g font-family="system-ui, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="190" y="226" font-size="30" fill="#1b3b73">Jarabe</text>
+    <text x="190" y="247" font-size="17" fill="#1b3b73">para la tos</text>
+    <text x="190" y="268" font-size="17" fill="#1b3b73">de ñandú y miel</text>
+    <text x="190" y="321" font-size="18" fill="#fff">120 ml</text>
+  </g>
+  <!-- Vasito dosificador con jarabe -->
+  <path d="M298 262H372L362 332H308z" fill="#fff" fill-opacity=".85" stroke="#1b3b73" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M302 290H368L362 332H308z" fill="#f5a623" stroke="#1b3b73" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M312 276H328M312 262H322" stroke="#1b3b73" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

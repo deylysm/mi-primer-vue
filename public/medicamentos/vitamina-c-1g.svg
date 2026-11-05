@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Tubo amarillo de Vitamina C 1 g con tabletas efervescentes y una rodaja de naranja</title>
+  <defs>
+    <g id="disco"><path d="M-34 0v8a34 12 0 0 0 68 0v-8z" fill="#e3e8ec" stroke="#5c4a00" stroke-width="2.5" stroke-linejoin="round"/><ellipse rx="34" ry="12" fill="#fff" stroke="#5c4a00" stroke-width="2.5"/><circle cx="-10" cy="-1" r="3" fill="#fff0b0" stroke="#5c4a00" stroke-width="1.5"/><circle cx="8" cy="2" r="2.5" fill="#fff0b0" stroke="#5c4a00" stroke-width="1.5"/><circle cx="16" cy="-3" r="2" fill="#fff0b0" stroke="#5c4a00" stroke-width="1.5"/></g>
+  </defs>
+  <rect width="400" height="400" rx="48" fill="#fff6cc"/>
+  <ellipse cx="200" cy="340" rx="140" ry="13" fill="#000" opacity=".14"/>
+  <!-- Tubo y tapa -->
+  <rect x="140" y="104" width="120" height="226" rx="14" fill="#f2b705" stroke="#5c4a00" stroke-width="3"/>
+  <rect x="150" y="124" width="10" height="190" rx="5" fill="#fff" opacity=".35"/>
+  <rect x="140" y="150" width="120" height="140" fill="#fff" stroke="#5c4a00" stroke-width="2.5"/>
+  <rect x="132" y="62" width="136" height="52" rx="12" fill="#5c4a00" stroke="#5c4a00" stroke-width="3"/>
+  <path d="M152 72V104M172 72V104M192 72V104M212 72V104M232 72V104M252 72V104" stroke="#fff0b0" stroke-width="3" stroke-linecap="round" opacity=".4"/>
+  <rect x="170" y="258" width="60" height="26" rx="13" fill="#fff0b0" stroke="#f2b705" stroke-width="2"/>
+  <g font-family="system-ui, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="200" y="180" font-size="24" fill="#5c4a00">Vitamina</text>
+    <text x="200" y="238" font-size="58" fill="#5c4a00">C</text>
+    <text x="200" y="277" font-size="20" fill="#5c4a00">1 g</text>
+  </g>
+  <!-- Tabletas efervescentes -->
+  <use href="#disco" x="320" y="318"/>
+  <use href="#disco" x="320" y="304"/>
+  <!-- Rodaja de naranja -->
+  <g transform="translate(86 290)">
+    <circle r="38" fill="#f08a1c" stroke="#5c4a00" stroke-width="3"/>
+    <circle r="31" fill="#ffc15e"/>
+    <path d="M-31 0H31M0 -31V31M-22 -22L22 22M-22 22L22 -22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <circle r="4.5" fill="#fff"/>
+  </g>
+</svg>

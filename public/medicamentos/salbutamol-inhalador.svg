@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>Inhalador azul en forma de L de Salbutamol 100 mcg, 200 dosis, con receta (Rx)</title>
+  <rect width="400" height="400" rx="48" fill="#e8f0fb"/>
+  <ellipse cx="195" cy="340" rx="140" ry="12" fill="#000" opacity=".14"/>
+  <!-- Cartucho metálico asomando por arriba -->
+  <rect x="185" y="34" width="70" height="50" rx="10" fill="#e5e9ee" stroke="#1b3b73" stroke-width="3"/>
+  <path d="M200 48H240" stroke="#3b6fd4" stroke-width="5" stroke-linecap="round"/>
+  <!-- Boquilla (parte horizontal de la L) -->
+  <rect x="76" y="236" width="120" height="64" rx="18" fill="#1b3b73" stroke="#1b3b73" stroke-width="3"/>
+  <ellipse cx="82" cy="268" rx="8" ry="22" fill="#0f2347"/>
+  <!-- Cuerpo (parte vertical de la L) -->
+  <rect x="150" y="66" width="140" height="250" rx="26" fill="#3b6fd4" stroke="#1b3b73" stroke-width="3"/>
+  <rect x="162" y="90" width="10" height="140" rx="5" fill="#fff" opacity=".3"/>
+  <rect x="182" y="104" width="98" height="150" rx="10" fill="#fff" stroke="#1b3b73" stroke-width="2.5"/>
+  <rect x="190" y="172" width="82" height="30" rx="15" fill="#b3c9f0"/>
+  <circle cx="220" cy="286" r="19" fill="#fff" stroke="#1b3b73" stroke-width="2.5"/>
+  <!-- Pequeñas gotas de aerosol saliendo -->
+  <g fill="#b3c9f0" stroke="#1b3b73" stroke-width="2"><circle cx="52" cy="262" r="5"/><circle cx="38" cy="276" r="4"/><circle cx="54" cy="284" r="3"/></g>
+  <g font-family="system-ui, Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="231" y="138" font-size="16" fill="#1b3b73">Salbutamol</text>
+    <text x="231" y="158" font-size="15" fill="#1b3b73">inhalador</text>
+    <text x="231" y="193" font-size="19" fill="#1b3b73">100 mcg</text>
+    <text x="231" y="227" font-size="16" fill="#1b3b73">200 dosis</text>
+    <text x="220" y="292" font-size="17" fill="#1b3b73">Rx</text>
+  </g>
+</svg>
