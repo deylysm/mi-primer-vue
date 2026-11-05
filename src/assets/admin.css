@@ -755,6 +755,29 @@
 .fa-app .adm-panel__nuevo {
   width: 100%;                 /* móvil: botón a todo el ancho bajo el título */
 }
+/* Variante AZUL de .adm-panel__nuevo (solo "Nuevo medicamento"). Se usa JUNTO a las otras dos clases.
+   Especificidad: reposo (0,4,0) gana a ".fa-app .fa-boton" (0,2,0); :hover/:active (0,5,0) ganan a
+   ".fa-app .fa-boton:hover" (0,3,0). :not(:disabled) deja mandar al estilo "desactivado".
+   Blanco sobre #1d4ed8 = 6,7:1 | sobre #1e40af = 8,7:1 | sobre #1e3a8a = 10,4:1 */
+.fa-app .fa-boton.adm-panel__nuevo--azul:not(:disabled) {
+  background: var(--fa-color-azul);
+  border-color: var(--fa-color-azul);
+  box-shadow: 0 2px 6px rgba(30, 58, 138, 0.3);   /* sombra azulada en vez de la verde */
+}
+.fa-app .fa-boton.adm-panel__nuevo--azul:hover:not(:disabled) {
+  background: var(--fa-color-azul-hover);
+  border-color: var(--fa-color-azul-hover);
+}
+.fa-app .fa-boton.adm-panel__nuevo--azul:active:not(:disabled) {
+  background: var(--fa-color-azul-oscuro);
+  border-color: var(--fa-color-azul-oscuro);
+  box-shadow: none;
+}
+/* Foco: el anillo (#0a5cad) es casi del mismo azul que el botón; el hueco claro de 3px entre ambos
+   (offset) es lo que los separa. Un poco más que el 2px general para que se distinga bien. */
+.fa-app .fa-boton.adm-panel__nuevo--azul:focus-visible {
+  outline-offset: 3px;
+}
 @media (min-width: 640px) {
   .fa-app .adm-tab {
     flex: 0 0 auto;
