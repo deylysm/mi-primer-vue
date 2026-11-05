@@ -240,7 +240,7 @@ const idBorrando = computed(() => (dialogo.value.borrando ? dialogo.value.elemen
             Medicamentos
             <span v-if="!cargandoMedicamentos && !falloMedicamentos" class="adm-panel__contador">({{ medicamentos.length }})</span>
           </h2>
-          <button type="button" class="fa-boton adm-panel__nuevo" @click="abrirFormulario('medicamento')">
+          <button type="button" class="fa-boton adm-panel__nuevo adm-panel__nuevo--azul" @click="abrirFormulario('medicamento')">
             Nuevo medicamento
           </button>
         </div>
