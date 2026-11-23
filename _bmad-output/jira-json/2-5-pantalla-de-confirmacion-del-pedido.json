@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[2.5] Pantalla de confirmación del pedido",
+  "descripcion": "## Épica 2\nReservar productos desde el carrito\n\n## Historia de usuario\nComo cliente que acaba de reservar, quiero ver el resumen de mi pedido con su número y dónde recoger cada producto, para saber qué hacer a continuación.\nPrioridad: Alta · Estimación: 3 puntos · Requisitos: FR1b, FR4, UX-DR1, NFR6, NFR7\n\n## Criterios de aceptación\n- Dado que mi pedido se creó, cuando llego a la confirmación, entonces veo el número de pedido, la fecha y el estado \"Pendiente\".\n- Dado que el pedido incluye varias farmacias, cuando veo el resumen, entonces las líneas aparecen agrupadas por farmacia, con medicamento, cantidad, precio, subtotal por farmacia y total general.\n- Dado que la compra es una reserva, cuando veo la pantalla, entonces un texto aclara que se recoge en la farmacia y que no se paga en línea.\n- Dado que acabo de confirmar, cuando salgo de la pantalla, entonces el carrito está vacío.\n- Dado que recargo la página de confirmación o entro sin un pedido reciente, cuando se carga, entonces no se crea ningún pedido nuevo y veo un enlace para volver al buscador.\n- Dado que uso un celular de 360 px de ancho o lector de pantalla, cuando llego a la pantalla, entonces se lee sin scroll horizontal y el foco se coloca en el título de confirmación.",
+  "subtareas": []
+}

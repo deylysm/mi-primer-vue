@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[4.8] Ejecutar los tests automáticamente en cada Pull Request",
+  "descripcion": "## Épica 4\nConfianza al cambiar el código (tests automáticos)\n\n## Historia de usuario\nComo equipo de FarmaApp, queremos que cada Pull Request ejecute los tests solos, para no fusionar cambios que rompen algo.\nPrioridad: Media · Estimación: 5 puntos · Requisitos: FR17, NFR4, NFR5\nAlcance: usa GitHub Actions (u otra integración continua equivalente) y depende de las historias 4.1 a 4.5, como mínimo. Subir el flujo de trabajo al repositorio y abrir PRs sigue requiriendo la autorización de Deylu por tarea.\n\n## Criterios de aceptación\n- Dado que se abre o se actualiza un Pull Request, cuando se dispara la integración continua, entonces se ejecutan la compilación (`npm run build`), los tests del frontend y los tests del backend.\n- Dado que algún test o la compilación falla, cuando termina la ejecución, entonces el PR muestra el estado en rojo con el motivo, y si todo pasa lo muestra en verde.\n- Dado que los tests del backend necesitan PostgreSQL, cuando corren en la integración continua, entonces usan una base de datos temporal de prueba y nunca la real.\n- Dado que las pruebas necesitan credenciales de prueba, cuando se configuran, entonces se guardan como secretos de GitHub y no aparecen en el repositorio ni en los registros.\n- Dado que la ejecución tarda más de lo razonable, cuando se revisa el tiempo, entonces se documenta cuánto dura y se aprovecha la caché de dependencias.",
+  "subtareas": []
+}

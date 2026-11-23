@@ -1,0 +1,20 @@
+{
+  "tablero": 1,
+  "sprints": [
+    {
+      "nombre": "Sprint 1 - Inventario y base de tests",
+      "objetivo": "Inventario administrable por farmacia (Épica 1) y los cimientos de tests del frontend y del backend.",
+      "historias": ["SCRUM-5", "SCRUM-6", "SCRUM-7", "SCRUM-8", "SCRUM-9", "SCRUM-20", "SCRUM-23"]
+    },
+    {
+      "nombre": "Sprint 2 - Reservar desde el carrito",
+      "objetivo": "El cliente puede finalizar su compra desde el carrito: pedido en el servidor, stock descontado y confirmación (Épica 2).",
+      "historias": ["SCRUM-10", "SCRUM-11", "SCRUM-12", "SCRUM-13", "SCRUM-14"]
+    },
+    {
+      "nombre": "Sprint 3 - Pedidos y tests de punta a punta",
+      "objetivo": "Seguimiento de pedidos (Épica 3) y resto de la automatización de tests en cada Pull Request (Épica 4).",
+      "historias": ["SCRUM-15", "SCRUM-16", "SCRUM-17", "SCRUM-18", "SCRUM-19", "SCRUM-21", "SCRUM-22", "SCRUM-24", "SCRUM-25", "SCRUM-26", "SCRUM-27"]
+    }
+  ]
+}

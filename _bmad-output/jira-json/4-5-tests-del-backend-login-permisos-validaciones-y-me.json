@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[4.5] Tests del backend: login, permisos, validaciones y medicamentos",
+  "descripcion": "## Épica 4\nConfianza al cambiar el código (tests automáticos)\n\n## Historia de usuario\nComo desarrolladora de FarmaApp, quiero tests de las rutas existentes del backend, para detectar fallos de seguridad y de validación antes de que lleguen a producción.\nPrioridad: Alta · Estimación: 5 puntos · Requisitos: FR15, NFR1, NFR5\nAlcance: depende de la historia 4.4.\n\n## Criterios de aceptación\n- Dado que pruebo `/login`, cuando envío credenciales correctas, incorrectas y datos inválidos, entonces recibo respectivamente un token, un error de credenciales y un error de validación.\n- Dado que pruebo las rutas de administración (crear, editar y borrar medicamentos y farmacias), cuando llamo sin token o con un usuario que no es administrador, entonces recibo 401 o 403 y no cambia ningún dato.\n- Dado que envío campos desconocidos o faltantes a una ruta con modelo de entrada, cuando llamo a la ruta, entonces se rechaza por validación (`extra=\"forbid\"`).\n- Dado que pruebo las rutas de medicamentos, cuando listo, busco y abro el detalle, entonces las respuestas tienen la forma y los datos esperados, y un medicamento inexistente da 404.\n- Dado que pruebo crear, editar y borrar un medicamento como administrador, cuando termino, entonces el cambio se refleja en la consulta y la base de prueba queda limpia.",
+  "subtareas": []
+}

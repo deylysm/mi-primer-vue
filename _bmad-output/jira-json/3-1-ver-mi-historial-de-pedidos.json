@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[3.1] Ver mi historial de pedidos",
+  "descripcion": "## Épica 3\nSeguimiento de pedidos\n\n## Historia de usuario\nComo cliente con sesión iniciada, quiero ver la lista de mis pedidos, para saber qué reservé y en qué estado está cada uno.\nPrioridad: Media · Estimación: 3 puntos · Requisitos: FR5, NFR6, NFR7\n\n## Criterios de aceptación\n- Dado que tengo sesión, cuando abro \"Mis pedidos\", entonces veo mis pedidos del más reciente al más antiguo, con número, fecha, estado y total.\n- Dado que otros clientes tienen pedidos, cuando abro la lista, entonces solo veo los míos.\n- Dado que todavía no hice pedidos, cuando abro la lista, entonces veo \"Aún no tienes pedidos\" y un enlace al buscador.\n- Dado que no tengo sesión, cuando intento abrir \"Mis pedidos\", entonces voy al login y, tras entrar, vuelvo a la lista.\n- Dado que tengo muchos pedidos, cuando abro la lista, entonces se muestran por páginas.\n- Dado que falla la carga, cuando ocurre el error, entonces veo un mensaje en español y un botón para reintentar.\n- Dado que uso un celular de 360 px de ancho, cuando abro la lista, entonces se lee sin scroll horizontal.",
+  "subtareas": []
+}

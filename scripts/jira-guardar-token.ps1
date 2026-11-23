@@ -47,6 +47,21 @@ $cifrado = $secure | ConvertFrom-SecureString
 
 [Environment]::SetEnvironmentVariable("JIRA_EMAIL", $email, "User")
 
+# Tipo de token: el CLASICO (sin alcances) entra por la URL del sitio y permite tableros, sprints y /myself.
+# El token CON ALCANCES entra por la pasarela api.atlassian.com y solo ve lo que sus alcances permitan.
+$tipo = (Read-Host "Tipo de token: [C]lasico (sin alcances, recomendado) o con [A]lcances").Trim().ToLower()
+if ($tipo -like "a*") {
+    [Environment]::SetEnvironmentVariable("JIRA_SITE", $null, "User")
+    Write-Output "Modo: token con alcances (pasarela api.atlassian.com)."
+}
+else {
+    $sitio = (Read-Host "Sitio de Jira [Enter = deylui27.atlassian.net]").Trim()
+    if (-not $sitio) { $sitio = "deylui27.atlassian.net" }
+    if ($sitio -notmatch '^[A-Za-z0-9-]+\.atlassian\.net$') { throw "Sitio no valido (ej: midominio.atlassian.net)." }
+    [Environment]::SetEnvironmentVariable("JIRA_SITE", $sitio, "User")
+    Write-Output "Modo: token clasico (sitio $sitio)."
+}
+
 Write-Output "Token guardado cifrado en: $ruta (longitud $longitud, sin caracteres de control)."
 Write-Output "JIRA_EMAIL guardado como variable de usuario."
 Write-Output "Siguiente paso: .\scripts\jira-api.ps1"

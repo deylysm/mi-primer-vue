@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[3.2] Ver el detalle de mi pedido",
+  "descripcion": "## Épica 3\nSeguimiento de pedidos\n\n## Historia de usuario\nComo cliente con sesión iniciada, quiero abrir un pedido y ver todo su detalle, para saber qué recoger y en qué farmacia.\nPrioridad: Media · Estimación: 3 puntos · Requisitos: FR1b, FR5, NFR6, NFR7\n\n## Criterios de aceptación\n- Dado que estoy en mi lista de pedidos, cuando abro uno, entonces veo número, fecha, estado y las líneas agrupadas por farmacia, con subtotal por farmacia y total.\n- Dado que el precio de un medicamento cambió después de mi compra, cuando abro el pedido, entonces veo los precios de cuando compré.\n- Dado que intento abrir un pedido de otro cliente o uno que no existe, cuando llamo a la ruta, entonces recibo \"Pedido no encontrado\" en ambos casos, sin revelar si existe.\n- Dado que el pedido tiene un estado, cuando lo veo, entonces el estado se entiende por texto y no solo por color.\n- Dado que el pedido está cancelado, cuando lo abro, entonces veo claramente \"Este pedido fue cancelado\".\n- Dado que uso un celular de 360 px de ancho, cuando abro el detalle, entonces se lee sin scroll horizontal y puedo volver a la lista.",
+  "subtareas": []
+}

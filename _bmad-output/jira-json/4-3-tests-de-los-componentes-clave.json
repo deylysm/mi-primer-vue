@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[4.3] Tests de los componentes clave",
+  "descripcion": "## Épica 4\nConfianza al cambiar el código (tests automáticos)\n\n## Historia de usuario\nComo desarrolladora de FarmaApp, quiero tests de las pantallas del carrito, el buscador y el login, para detectar si un cambio de interfaz rompe lo más usado.\nPrioridad: Media · Estimación: 5 puntos · Requisitos: FR14, AR3\nAlcance: depende de la historia 4.1. Puede requerir instalar una librería de pruebas de componentes (por ejemplo `@vue/test-utils`), lo que necesita la autorización explícita de Deylu.\n\n## Criterios de aceptación\n- Dado que pruebo el carrito, cuando hay productos, entonces el test comprueba que se muestran, que cambiar la cantidad actualiza el total y que el carrito vacío muestra su mensaje.\n- Dado que pruebo el buscador, cuando escribo un término con un servicio simulado, entonces el test comprueba que aparecen los resultados y que sin coincidencias se ve el mensaje de \"sin resultados\".\n- Dado que pruebo el login, cuando envío datos vacíos, credenciales incorrectas y credenciales correctas, entonces el test comprueba el mensaje de error o el éxito en cada caso.\n- Dado que cada componente tiene estados de carga y de error, cuando corro los tests, entonces se cubre al menos uno de esos estados por componente.\n- Dado que los tests usan servicios simulados, cuando se ejecutan, entonces no llaman al backend real y no contienen contraseñas ni tokens reales.",
+  "subtareas": []
+}

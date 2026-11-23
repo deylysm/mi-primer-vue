@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[4.2] Tests de los composables",
+  "descripcion": "## Épica 4\nConfianza al cambiar el código (tests automáticos)\n\n## Historia de usuario\nComo desarrolladora de FarmaApp, quiero tests de la lógica de `src/composables`, para cambiar el carrito o la sesión sin romperlos sin darme cuenta.\nPrioridad: Media · Estimación: 3 puntos · Requisitos: FR13\nAlcance: depende de la historia 4.1. Se prueba al menos `useCarrito` y `useSesion`; los demás composables según su complejidad.\n\n## Criterios de aceptación\n- Dado que agrego al carrito un producto que ya estaba (mismo medicamento y misma farmacia), cuando corro el test, entonces las cantidades se suman sin pasar del stock.\n- Dado que cambio la cantidad o quito un producto, cuando corro el test, entonces el carrito y el total reflejan el cambio.\n- Dado que el carrito se guarda en `localStorage`, cuando se carga con datos rotos o inválidos, entonces el test comprueba que no falla y arranca vacío.\n- Dado que inicio y cierro sesión, cuando corro el test de `useSesion`, entonces el estado de sesión cambia como se espera y se limpia al salir.\n- Dado que los tests usan un `localStorage` y servicios simulados, cuando se ejecutan, entonces no dependen de la red ni de datos reales.",
+  "subtareas": []
+}

@@ -84,7 +84,11 @@ $headers = @{
 $basic = $null
 
 # ---------- 4. Ruta segun la accion (todas son GET) ----------
-$base = "https://api.atlassian.com/ex/jira/$cloudId"
+# Token con alcances -> pasarela api.atlassian.com. Token clasico (sin alcances) -> URL del sitio (JIRA_SITE).
+$site = [Environment]::GetEnvironmentVariable("JIRA_SITE", "User")
+if (-not $site) { $site = [Environment]::GetEnvironmentVariable("JIRA_SITE", "Process") }
+if ($site -and $site -match '^[A-Za-z0-9-]+\.atlassian\.net$') { $base = "https://$site" }
+else { $base = "https://api.atlassian.com/ex/jira/$cloudId" }
 $campos = "summary,status,assignee,issuetype,priority,parent"
 
 switch ($Accion.ToLower()) {

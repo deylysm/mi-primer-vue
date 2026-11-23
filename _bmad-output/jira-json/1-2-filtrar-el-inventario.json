@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[1.2] Filtrar el inventario",
+  "descripcion": "## Épica 1\nInventario administrable por farmacia\n\n## Historia de usuario\nComo administrador de FarmaApp, quiero filtrar el inventario por farmacia, por agotados y por stock bajo, para encontrar rápido qué productos necesitan reposición.\nPrioridad: Alta · Estimación: 3 puntos · Requisitos: FR11, NFR6, NFR7\n\n## Criterios de aceptación\n- Dado que estoy en la pantalla de inventario, cuando elijo una farmacia en el filtro, entonces la tabla muestra solo los registros de esa farmacia.\n- Dado que estoy en la pantalla de inventario, cuando activo \"Agotados\", entonces veo solo los registros con stock igual a 0.\n- Dado que estoy en la pantalla de inventario, cuando activo \"Stock bajo\", entonces veo solo los registros con stock mayor que 0 y menor o igual a 5 (umbral fijo por ahora; la historia 1.5 lo vuelve configurable).\n- Dado que combino varios filtros, cuando se aplican, entonces la tabla muestra solo los registros que cumplen todos.\n- Dado que ningún registro cumple los filtros, cuando se aplican, entonces veo \"No hay resultados con estos filtros\" y un botón \"Limpiar filtros\".\n- Dado que hay filtros activos, cuando pulso \"Limpiar filtros\", entonces vuelve a verse todo el inventario.\n- Dado que uso un celular de 360 px de ancho, cuando uso los filtros, entonces se ven y se pueden usar sin scroll horizontal.",
+  "subtareas": []
+}

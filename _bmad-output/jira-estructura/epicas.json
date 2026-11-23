@@ -1,0 +1,25 @@
+{
+  "proyecto": "SCRUM",
+  "epicas": [
+    {
+      "titulo": "Épica 1: Inventario administrable por farmacia",
+      "descripcion": "Que cada farmacia pueda ver, filtrar y ajustar su inventario, con historial de movimientos y alertas de stock bajo.",
+      "historias": ["SCRUM-5", "SCRUM-6", "SCRUM-7", "SCRUM-8", "SCRUM-9"]
+    },
+    {
+      "titulo": "Épica 2: Reservar productos desde el carrito",
+      "descripcion": "Que el cliente pueda finalizar su compra desde el carrito: pedido creado en el servidor, stock validado y descontado, inicio de sesión al finalizar y pantalla de confirmación.",
+      "historias": ["SCRUM-10", "SCRUM-11", "SCRUM-12", "SCRUM-13", "SCRUM-14"]
+    },
+    {
+      "titulo": "Épica 3: Seguimiento de pedidos",
+      "descripcion": "Que clientes y administradores puedan ver el historial y el detalle de los pedidos, cambiar su estado y cancelarlos devolviendo el stock.",
+      "historias": ["SCRUM-15", "SCRUM-16", "SCRUM-17", "SCRUM-18", "SCRUM-19"]
+    },
+    {
+      "titulo": "Épica 4: Confianza al cambiar el código (tests automáticos)",
+      "descripcion": "Tests del frontend, del backend y de extremo a extremo, ejecutados automáticamente en cada Pull Request.",
+      "historias": ["SCRUM-20", "SCRUM-21", "SCRUM-22", "SCRUM-23", "SCRUM-24", "SCRUM-25", "SCRUM-26", "SCRUM-27"]
+    }
+  ]
+}

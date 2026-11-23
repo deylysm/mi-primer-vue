@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[1.1] Ver el inventario por farmacia",
+  "descripcion": "## Épica 1\nInventario administrable por farmacia\n\n## Historia de usuario\nComo administrador de FarmaApp, quiero ver en el panel el inventario de cada farmacia (medicamento, stock y precio), para saber cuánto stock hay sin abrir los medicamentos uno por uno.\nPrioridad: Alta · Estimación: 5 puntos · Requisitos: FR8, NFR1, NFR6, NFR7, AR5\n\n## Criterios de aceptación\n- Dado que soy administrador con sesión iniciada, cuando abro la sección \"Inventario\" del panel, entonces veo una tabla con medicamento, farmacia, stock y precio de cada registro.\n- Dado que hay muchos registros, cuando se carga la pantalla, entonces se muestran por páginas y puedo pasar de una a otra.\n- Dado que no tengo sesión o no soy administrador, cuando intento abrir la pantalla o llamar al endpoint, entonces se me niega el acceso y no se muestran datos.\n- Dado que todavía no hay inventario, cuando abro la pantalla, entonces veo el mensaje \"Aún no hay inventario registrado\".\n- Dado que falla la carga de datos, cuando ocurre el error, entonces veo un mensaje en español y un botón para reintentar.\n- Dado que uso un celular de 360 px de ancho, cuando abro la pantalla, entonces la página no tiene scroll horizontal y el texto se lee bien.",
+  "subtareas": []
+}

@@ -1,0 +1,7 @@
+{
+  "proyecto": "SCRUM",
+  "tipo": "Historia",
+  "titulo": "[2.4] Iniciar sesión al finalizar y volver al carrito",
+  "descripcion": "## Épica 2\nReservar productos desde el carrito\n\n## Historia de usuario\nComo cliente sin sesión, quiero que al finalizar la compra se me pida iniciar sesión y luego volver a mi carrito, para no perder los productos que elegí.\nPrioridad: Alta · Estimación: 3 puntos · Requisitos: FR1, NFR6, NFR7\n\n## Criterios de aceptación\n- Dado que no tengo sesión y hay productos en mi carrito, cuando pulso \"Finalizar compra\", entonces voy al login con el aviso \"Inicia sesión para finalizar tu compra\".\n- Dado que inicio sesión correctamente desde ese aviso, cuando el login termina, entonces vuelvo automáticamente al carrito con los mismos productos y cantidades.\n- Dado que salgo del login sin iniciar sesión, cuando vuelvo al carrito, entonces mis productos siguen ahí.\n- Dado que mi sesión expira mientras confirmo (respuesta 401), cuando ocurre, entonces voy al login y, tras entrar, vuelvo al carrito sin perder nada.\n- Dado que ya tengo sesión, cuando pulso \"Finalizar compra\", entonces no paso por el login.\n- Dado que la dirección de retorno se guarda en la URL, cuando se usa tras el login, entonces solo se aceptan rutas internas de la aplicación (nunca una dirección externa).\n- Dado que uso un celular de 360 px de ancho, cuando paso por el login y regreso, entonces el flujo se ve y se usa sin scroll horizontal.",
+  "subtareas": []
+}
